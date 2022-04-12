@@ -36,10 +36,15 @@ Inspired by: **[fundamental-concepts-of-plugin-infrastructures](https://eli.theg
 
 #### File Structure
 Files related to plugins are stored in [src/plugins](https://github.com/FotoFaces/FotoFaces/tree/dev/src/plugins) a plugin.yaml file is necessary as well as a plugin where the name of the file is the same as the directory name.
+
 Files related to the configuration of the main application [src/settings](https://github.com/FotoFaces/FotoFaces/tree/dev/src/settings).
+
 Files related to plugins contract and registration [src/engine](https://github.com/FotoFaces/FotoFaces/tree/dev/src/engine).
-Log files related to the workflow of the application[src/logs](https://github.com/FotoFaces/FotoFaces/tree/dev/src/logs).
+
+Log files related to the workflow of the application [src/logs](https://github.com/FotoFaces/FotoFaces/tree/dev/src/logs).
+
 Helper methods to discover and resolve paths of the plugins [src/util](https://github.com/FotoFaces/FotoFaces/tree/dev/src/util).
+
 Model of the domain [src/model](https://github.com/FotoFaces/FotoFaces/tree/dev/src/model).
 
 #### Plugins Structure
