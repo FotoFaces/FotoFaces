@@ -1,5 +1,6 @@
 from flask import Flask, flash, jsonify, request
 from flask_restful import Resource, Api
+from kafka import KafkaConsumer, KafkaProducer, TopicPartition
 import sqlite3 as sql
 import logging
 import json
@@ -13,6 +14,13 @@ app = Flask(__name__)
 app.logger.debug("\n\n\n\t\tFlask app start")
 api = Api(app)
 
+
+# # Kafka Consumer and Producer
+# producer = KafkaProducer(bootstrap_servers='localhost:1234', value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+# consumer = KafkaConsumer('topic', bootstrap_servers='localhost:1234')
+# producer.send('fizzbuzz', {'foo': 'bar'})
+# for msg in consumer:
+#     print (msg)
 
 # mock database created with sqlite3
 with sql.connect('mydb') as con:
@@ -180,6 +188,7 @@ if __name__ == "__main__":
 """ References
 
 - https://flask-restful.readthedocs.io/en/latest/quickstart.html#resourceful-routing
+- https://kafka-python.readthedocs.io/en/master/
 - 
 
 """
