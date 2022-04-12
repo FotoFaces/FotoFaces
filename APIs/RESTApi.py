@@ -174,3 +174,12 @@ api.add_resource(User, '/add_user/<int:identification>')
 # main
 if __name__ == "__main__":
 	app.run()
+
+
+
+""" References
+
+- https://flask-restful.readthedocs.io/en/latest/quickstart.html#resourceful-routing
+- 
+
+"""
