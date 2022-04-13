@@ -10,6 +10,7 @@ class PluginEngine:
     def __init__(self, **args) -> None:
         self._logger = LogUtil.create(args['options']['log_level'])
         self.use_case = PluginUseCase(args['options'])
+        self._coreApplication = args['options']['coreApplication']
         self.reload = True
 
 
@@ -36,7 +37,7 @@ class PluginEngine:
 
         print(self.use_case.modules)
         for module in self.use_case.modules:
-            plugin = self.use_case.register_plugin(module, self._logger)
+            plugin = self.use_case.register_plugin(module, self._logger, self._coreApplication)
             delegate = self.use_case.hook_plugin(plugin) # callable invoke of the curren plugin
 
             # plugin_resp should be a tuple or a list composed of (key, value)

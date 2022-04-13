@@ -9,7 +9,10 @@ import dlib
 import base64
 import json
 
+import appCore
+
 app = Flask(__name__)
+coreApplication = appCore.ApplicationCore()
 
 
 """
@@ -202,7 +205,7 @@ def __init_app(**args):
     return plEngine.start(**args)
 
 plEngine = PluginEngine(options=
-                        {"log_level": "DEBUG", "directory": "./plugins/"},
+                        {"log_level": "DEBUG", "directory": "./plugins/", "coreApplication": coreApplication },
         )
 
 
