@@ -6,6 +6,13 @@ import json
 import sqlite3 as sql
 import logging
 
+
+# Topic for producing messages
+TOPIC_PRODUCE = "rev_image"
+# Topic for consuming messages
+TOPIC_CONSUME = "image"
+
+
 # mock database created with sqlite3
 with sql.connect('mydb') as con:
     cur = con.cursor()
@@ -74,6 +81,14 @@ def get_photo(identification):
     return json.dumps({"command": "get_photo", "id": identification, "photo": photo})
 
 
+# Set up a callback to handle the '--reset' flag.
+def reset_offset(consumer, partitions):
+    if args.reset:
+        for p in partitions:
+            p.offset = OFFSET_BEGINNING
+        consumer.assign(partitions)
+
+
 if __name__ == '__main__':
     # Parse the command line.
     parser = ArgumentParser()
@@ -94,49 +109,23 @@ if __name__ == '__main__':
     config.update(config_parser['consumer'])
     consumer = Consumer(config)
 
-    # Set up a callback to handle the '--reset' flag.
-    def reset_offset(consumer, partitions):
-        if args.reset:
-            for p in partitions:
-                p.offset = OFFSET_BEGINNING
-            consumer.assign(partitions)
-
-    # Subscribe to topic
-    topic_consumer = "image"
-    consumer.subscribe([topic_consumer], on_assign=reset_offset)
-    
-    
-    
-    # Produce topic.
-    topic_producer = "rev_image"
-    
-    def delivery_callback(err, msg):
-        if err:
-            print('ERROR: Message failed delivery: {}'.format(err))
-        else:
-            print("Produced event to topic {topic}: key = {key:12}".format(
-                topic=msg.topic(), key=msg.value().decode('utf-8')))
-
-
+    # Subscribe topic
+    consumer.subscribe([TOPIC_CONSUME], on_assign=reset_offset)
 
     # Poll for new messages from Kafka and print them.
     try:
         while True:
             msg = consumer.poll(1.0)
             if msg is None:
-                # Initial message consumption may take up to
-                # `session.timeout.ms` for the consumer group to
-                # rebalance and start consuming
-                print("Waiting...")
+                pass
             elif msg.error():
                 print(f"ERROR: {msg.error()}")
-            else:
-                # Extract the (optional) key and value, and print.
-                
+            else:                
                 msg_json = json.loads(msg.value().decode('utf-8'))
+                print(f"Receiving message -> msg: {msg_json}")
                 
-                print("Consumed event from topic {topic}: message = {message:12}".format(
-                    topic=msg.topic(), message=msg.value().decode('utf-8')))
+                # print("Consumed event from topic {topic}: message = {message:12}".format(
+                #     topic=msg.topic(), message=msg.value().decode('utf-8')))
                 
                 if msg_json["command"] == "update_photo":
                     new_msg = update_photo(int(msg_json["id"]), msg_json["photo"])
@@ -147,8 +136,8 @@ if __name__ == '__main__':
                     
                 # send new msg
                 print(f"Send new message back -> msg: {new_msg}")
-                producer.produce(topic_producer, json.dumps(new_msg), callback=delivery_callback)
-                
+                producer.produce(TOPIC_PRODUCE, json.dumps(new_msg))
+                producer.flush()
                 
     except KeyboardInterrupt:
         pass
