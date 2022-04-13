@@ -67,3 +67,18 @@ A sample plugin yaml and a sample plugin can be found in [here](https://github.c
 - Brightness
 - Image Quality
 - No Glasses
+- Head pose
+
+#### kwargs ->
+
+```
+def f(**args):
+    for k,v in args.items():
+            print(f"{k}, {v}")
+
+f(a=1,b=2,c=3)
+#Output
+    # a, 1
+    # b, 2
+    # c, 3
+```

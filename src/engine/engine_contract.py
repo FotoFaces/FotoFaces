@@ -10,7 +10,10 @@ class IPluginRegistry(type):
     def __init__(cls, name, bases, attrs):
         super().__init__(cls)
         if name != 'PluginCore':
+            print(cls)
             IPluginRegistry.plugin_registries.append(cls)
+        else:
+            print("ERROR")
 
 
 class PluginCore(object, metaclass=IPluginRegistry):
@@ -27,7 +30,7 @@ class PluginCore(object, metaclass=IPluginRegistry):
         """
         self._logger = logger
 
-    def invoke(self, **args):
+    def invoke(self, args):
         """
         Starts main plugin flow
         :param args: possible arguments for the plugin
