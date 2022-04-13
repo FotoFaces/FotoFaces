@@ -18,6 +18,6 @@ requirements:
   - name: 'dlib'
     version: '19.19.0'
   - name: 'Flask'
-    version:'2.1.0'
+    version: '2.1.0'
   - name: 'gunicorn'
-    version:'20.0.4'
+    version: '20.0.4'
