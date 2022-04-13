@@ -11,3 +11,4 @@ plugins:
   # Packages to download from registry
   - sample-plugin
   - FaceRecognition
+  - Brightness
