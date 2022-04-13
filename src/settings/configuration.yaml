@@ -16,3 +16,4 @@ plugins:
   - ImageQuality
   - EyesOpen
   - Sunglasses
+  - HeadPose
