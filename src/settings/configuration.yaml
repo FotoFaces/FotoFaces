@@ -12,3 +12,5 @@ plugins:
   - sample-plugin
   - FaceRecognition
   - Gaze
+  - Brightness
+  - ImageQuality
