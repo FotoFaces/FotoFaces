@@ -9,6 +9,5 @@ logging:
   level: 'DEBUG'
 plugins:
   # Packages to download from registry
-  - advance-plugin
   - sample-plugin
   - FaceRecognition
