@@ -11,8 +11,8 @@ class EyesOpen(PluginCore):
     def __init__(self, logger: Logger) -> None:
         super().__init__(logger)
         self.meta = Meta(
-            name='Brightness plugin',
-            description='Plugin for Brightness level',
+            name='Eyes Open plugin',
+            description='Plugin for verifying if the eyes are open',
             version='0.0.1'
         )
         
