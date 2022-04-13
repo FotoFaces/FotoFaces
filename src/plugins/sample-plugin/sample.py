@@ -1,7 +1,7 @@
 from logging import Logger
 
 from engine import PluginCore
-from model import Meta, Device
+from model import Meta
 
 
 class SamplePlugin(PluginCore):
@@ -14,6 +14,6 @@ class SamplePlugin(PluginCore):
             version='0.0.1'
         )
 
-    def invoke(self, command: chr) -> Device:
+    def invoke(self, command: chr):
         self._logger.debug(f'Command: {command} -> {self.meta}')
         return device

@@ -1,7 +1,7 @@
 from logging import Logger
 from typing import Optional, List
 
-from model import Meta, Device
+from model import Meta
 
 
 class IPluginRegistry(type):

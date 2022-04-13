@@ -2,14 +2,19 @@ import argparse
 
 from engine import PluginEngine
 from util import FileSystem
+# Change this to be a flask app
+
 
 
 def __description() -> str:
-    return "Create your own anime meta data"
+    return "This is an application with a plugin architecture\n \
+            the main objective of this application is to provide mechanisms\n \
+            of face recogtion, identification, and provide quality parameters related to a photo.\n \
+            Lastly this application returns a list of metrics that are to be used in the decision of updating a photo"
 
 
 def __usage() -> str:
-    return "vrv-meta.py --service vrv"
+    return "python3 app.py"
 
 
 def __init_cli() -> argparse:
@@ -34,8 +39,8 @@ def __print_program_end() -> None:
     print("-----------------------------------")
 
 
-def __init_app(parameters: dict) -> None:
-    PluginEngine(options=parameters).start()
+def __init_app(parameters: dict, **args) -> None:
+    PluginEngine(options=parameters).start(args)
 
 
 if __name__ == '__main__':
