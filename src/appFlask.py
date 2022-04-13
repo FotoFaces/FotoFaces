@@ -184,8 +184,11 @@ def upload_image():
                         final_img=final_img,
                     )
                     print(f"{resp}")
+                    for k,v in resp.items():
+                        data[k] = v
                     __print_plugins_end()
-            return data, 204
+                    return data
+    return "", 204
 
 
 def __print_plugins_end() -> None:
