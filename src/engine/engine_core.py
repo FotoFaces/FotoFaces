@@ -50,4 +50,5 @@ class PluginEngine:
                 self._logger.error(f'Return datatype invalid')
 
             self._logger.info(f'Plugin Returned: {plugin_resp}')
+        self._logger.info(f'Plugin Returned: {dict_feedback}')
         return dict_feedback
