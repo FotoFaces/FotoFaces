@@ -50,3 +50,20 @@ Model of the domain [src/model](https://github.com/FotoFaces/FotoFaces/tree/dev/
 #### Plugins Structure
 
 A sample plugin yaml and a sample plugin can be found in [here](https://github.com/FotoFaces/FotoFaces/tree/dev/src/plugins/sample-plugin).
+
+#### Application Core
+
+- Detect Face
+- Rotate
+- Crop
+
+#### Application Plugins
+
+- Face recognition
+- Frontal Face
+- Sunglasses
+- Eyes Open
+- Gaze
+- Brightness
+- Image Quality
+- No Glasses
