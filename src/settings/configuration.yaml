@@ -13,3 +13,4 @@ plugins:
   - FaceRecognition
   - Brightness
   - ImageQuality
+  - EyesOpen
