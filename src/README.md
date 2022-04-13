@@ -66,6 +66,7 @@ A sample plugin yaml and a sample plugin can be found in [here](https://github.c
 - Gaze
 - Brightness
 - Image Quality
+- Glasses
 - No Glasses
 - Head pose
 
