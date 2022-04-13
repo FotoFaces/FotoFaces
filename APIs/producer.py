@@ -1,9 +1,13 @@
+import base64
 import json
 import sys
 from random import choice
 from argparse import ArgumentParser, FileType
 from configparser import ConfigParser
 from confluent_kafka import Producer, Consumer, OFFSET_BEGINNING
+import cv2
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg  
 
 from flask import request, Flask
 app = Flask(__name__)
@@ -57,6 +61,10 @@ def upload_image():
         # old photo from the database
         old_photo = msg_json["photo"]
         
+        # decode_cropped = base64.b64decode(old_photo)
+        # img = mpimg.imread(decode_cropped)
+        # imgplot = plt.imshow(img)
+        # plt.show()
         
         
         #

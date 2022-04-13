@@ -1,3 +1,4 @@
+import base64
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
 import sqlite3 as sql
@@ -139,6 +140,10 @@ class User(Resource):
         name = request.form['name']
         password = request.form['password']
         email = request.form['email']
+        
+        with open(photo, "rb") as f:
+            can_bytes = f.read()
+        photo = base64.b64encode(can_bytes).decode("utf8")
 
         # database call
         app.logger.debug("-- Begin -- Database call creating / updating user")

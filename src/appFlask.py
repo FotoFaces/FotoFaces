@@ -164,34 +164,33 @@ def upload_image():
         )
         
         
-        # # Kafka Implementation to message deal with the REST API
-        
-        # # GET photo from the database
-        # # produce a json message to send to the consumer
-        # producer.produce(TOPIC_PRODUCE, json.dumps({"command": "get_photo", "id": identifier}))
-        # producer.flush()
+        # Kafka Implementation to message deal with the REST API
+        # GET photo from the database
+        # produce a json message to send to the consumer
+        producer.produce(TOPIC_PRODUCE, json.dumps({"command": "get_photo", "id": identifier}))
+        producer.flush()
     
-        # # Poll for new messages from Kafka and save the json object
-        # msg_json = None
-        # try:
-        #     while True:
-        #         msg = consumer.poll(1.0)
-        #         if msg is None:
-        #             pass
-        #         elif msg.error():
-        #             print(f"ERROR Recieving GET from the Database: {msg.error()}")
-        #         else:
-        #             msg_json = json.loads(msg.value().decode('utf-8'))
-        #             print(f"Consumed event from topic {TOPIC_CONSUME}: message = {msg_json}")
-        #             break
-        # except KeyboardInterrupt:
-        #     return False
+        # Poll for new messages from Kafka and save the json object
+        msg_json = None
+        try:
+            while True:
+                msg = consumer.poll(1.0)
+                if msg is None:
+                    pass
+                elif msg.error():
+                    print(f"ERROR Recieving GET from the Database: {msg.error()}")
+                else:
+                    msg_json = json.loads(msg.value().decode('utf-8'))
+                    print(f"Consumed event from topic {TOPIC_CONSUME}: message = {msg_json}")
+                    break
+        except KeyboardInterrupt:
+            return False
         
-        # # idk why it needs this but it doesn't work without it
-        # msg_json = json.loads(msg_json)
-        # # old photo from the database
-        # old_photo = msg_json["photo"]
-        # print(old_photo)
+        # idk why it needs this but it doesn't work without it
+        msg_json = json.loads(msg_json)
+        # old photo from the database
+        old_photo = msg_json["photo"]
+        print(old_photo)
         
         
         
