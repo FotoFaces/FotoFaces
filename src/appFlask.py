@@ -181,7 +181,7 @@ def upload_image():
                     print(f"ERROR Recieving GET from the Database: {msg.error()}")
                 else:
                     msg_json = json.loads(msg.value().decode('utf-8'))
-                    print(f"Consumed event from topic {TOPIC_CONSUME}: message = {msg_json}")
+                    print(f"Consumed event from topic {TOPIC_CONSUME}")
                     break
         except KeyboardInterrupt:
             return False
@@ -190,7 +190,8 @@ def upload_image():
         msg_json = json.loads(msg_json)
         # old photo from the database
         old_photo = msg_json["photo"]
-        print(old_photo)
+        
+        # print(old_photo)
         
         
         
@@ -222,7 +223,14 @@ def upload_image():
                     data["Resize"] = 500 / roi.shape[0]
                     final_img = cv2.resize(roi, (500, 500))
                     # start plugins
-                    img2 = request.form["reference"]
+                    
+                    # old method
+                    # img2 = request.form["reference"]
+                    # print(f"image reference {img2}")
+                    
+                    # new method with kafka
+                    img2 = old_photo
+                    
                     reference = cv2.imdecode(
                         np.frombuffer(base64.b64decode(img2), np.uint8),
                         cv2.IMREAD_COLOR,

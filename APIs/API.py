@@ -135,7 +135,7 @@ if __name__ == '__main__':
                     new_msg = {"error": "command not recognized"}
                     
                 # send new msg
-                print(f"Send new message back -> msg: {new_msg}")
+                print(f"Send new message back")
                 producer.produce(TOPIC_PRODUCE, json.dumps(new_msg))
                 producer.flush()
                 
