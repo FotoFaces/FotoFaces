@@ -37,7 +37,7 @@ TOPIC_CONSUME = "rev_image"
 
 # Set up a callback to handle the '--reset' flag.
 def reset_offset(consumer, partitions):
-    if args.reset:
+    if ARGS.reset:
         for p in partitions:
             p.offset = OFFSET_BEGINNING
         consumer.assign(partitions)
@@ -163,12 +163,28 @@ def upload_image():
             np.frombuffer(base64.b64decode(img1), np.uint8), cv2.IMREAD_COLOR
         )
         
-        
         # Kafka Implementation to message deal with the REST API
+        
+        # Parse the configuration.
+        # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
+        config_parser.read_file(ARGS.config_file)
+        config = dict(config_parser['default'])
+        
+        # Create Producer instance
+        producer = Producer(config)
+        
+        # Create Consumer instance
+        config.update(config_parser['consumer'])
+        consumer = Consumer(config)
+
+        consumer.subscribe([TOPIC_CONSUME], on_assign=reset_offset)
+        
+        
         # GET photo from the database
         # produce a json message to send to the consumer
         producer.produce(TOPIC_PRODUCE, json.dumps({"command": "get_photo", "id": identifier}))
         producer.flush()
+        print("SENT: {\"command\": \"get_photo\", \"id\": " + identifier + "}")
     
         # Poll for new messages from Kafka and save the json object
         msg_json = None
@@ -190,9 +206,6 @@ def upload_image():
         msg_json = json.loads(msg_json)
         # old photo from the database
         old_photo = msg_json["photo"]
-        
-        # print(old_photo)
-        
         
         
         data = {}
@@ -272,21 +285,8 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument('config_file', type=FileType('r'))
     parser.add_argument('--reset', action='store_true')
-    args = parser.parse_args()
+    ARGS = parser.parse_args()
     
-    # Parse the configuration.
-    # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
     config_parser = ConfigParser()
-    config_parser.read_file(args.config_file)
-    config = dict(config_parser['default'])
-    
-    # Create Producer instance
-    producer = Producer(config)    
-
-    # Create Consumer instance
-    config.update(config_parser['consumer'])
-    consumer = Consumer(config)
-
-    consumer.subscribe([TOPIC_CONSUME], on_assign=reset_offset)
     
     app.run(debug=True)
