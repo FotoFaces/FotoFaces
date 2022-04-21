@@ -9,11 +9,38 @@ import json
 import sys
 import fotofaces
 import time
+import face_recognition
+
+
 #import FaceRecognition
 
 
+def rect_to_bb(face):
+	x = face[3]
+	y = face[0]
+	w = face[1] - x
+	h = face[2] - y
+	return [x, y, w, h]
 
 
+
+def testFaceRecognitionLib():
+    print("Testing with Face_recognition library ....")
+    im = cv2.imread(sys.argv[1])
+    image = face_recognition.load_image_file(sys.argv[1])
+    start = time.time()
+    face_locations = face_recognition.face_locations(image)
+    duration = time.time() - start
+
+    print(face_locations)
+
+    for face in face_locations:
+        [x,y,w,h] = rect_to_bb(list(face))
+        cv2.rectangle(im, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    cv2.imshow("Faces found", im)
+    cv2.waitKey(0)
+    print("Duration: "+ str(duration))
+    print("End of Testing with OpenCV")
 
 
 
@@ -70,3 +97,5 @@ def OldDetection(imagePath):
 testOpenCVDetection()
 print("\n\n")
 testOldDetection()
+print("\n\n")
+testFaceRecognitionLib()
