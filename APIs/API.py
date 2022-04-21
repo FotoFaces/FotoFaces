@@ -99,30 +99,21 @@ if __name__ == '__main__':
     # Parse the configuration.
     # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
     config_parser = ConfigParser()
+    config_parser.read_file(args.config_file)
+    config = dict(config_parser['default'])
+    
+    # Create Consumer instance
+    config.update(config_parser['consumer'])
+    consumer = Consumer(config)
+
+    # Subscribe topic
+    consumer.subscribe([TOPIC_CONSUME], on_assign=reset_offset)
 
     # Poll for new messages from Kafka and print them.
     try:
         while True:
 
             # timeout work please
-            
-            
-            config_parser.read_file(args.config_file)
-            config = dict(config_parser['default'])
-            
-            # Create Producer instance
-            producer = Producer(config)
-            
-            # Create Consumer instance
-            config.update(config_parser['consumer'])
-            consumer = Consumer(config)
-
-            # Subscribe topic
-            consumer.subscribe([TOPIC_CONSUME], on_assign=reset_offset)
-            
-            
-            
-        
             
             msg = consumer.poll(1.0)
             if msg is None:
@@ -145,8 +136,15 @@ if __name__ == '__main__':
                     
                 # send new msg
                 print(f"Send new message back")
+                config_parser = ConfigParser()
+                config_parser.read_file(args.config_file)
+                config = dict(config_parser['default'])
+                
+                # Create Producer instance
+                producer = Producer(config)
                 producer.produce(TOPIC_PRODUCE, json.dumps(new_msg))
                 producer.flush()
+                producer.close()
                 
     except KeyboardInterrupt:
         pass
