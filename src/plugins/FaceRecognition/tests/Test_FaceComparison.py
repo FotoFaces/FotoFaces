@@ -1,6 +1,8 @@
 import face_recognition as fc
 import cv2
 import sys
+import fotofaces
+import time
 
 
 
@@ -12,10 +14,45 @@ def rect_to_bb(face):
 	return [x, y, w, h]
 
 
+def main():
+    print("Testing with Old Fotofaces Algorithm ....")
+
+    start = time.time()
+
+    result = testOldFotofaces()
+    duration = time.time() - start
+
+    print("Result:" + str(result))
+    print("Duration: "+ str(duration))
+    print("End of Testing with Old Fotofaces Algorithm")
+
+    print("\n\n")
+
+    print("Testing with Face Recognition lib ....")
+
+    start = time.time()
+
+    result = testFaceRecognitionLib()
+    duration = time.time() - start
+
+    print("Result:" + str(result))
+    print("Duration: "+ str(duration))
+    print("End of Testing with Face Recognition lib")
+###########     face comparison with Face_recognition lib
+
+def testOldFotofaces():
+    imagePath1 = sys.argv[1]
+    imagePath2 = sys.argv[2]
+
+    image1 = cv2.imread(imagePath1)
+    image2 = cv2.imread(imagePath2)
+    gray = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
+    shape, bb, raw_shape = fotofaces.detect_face(gray)
+    tolerance = fotofaces.face_verification(image1, raw_shape, {}, image2)
+    return tolerance <= 0.6
 
 
-
-###########     face comparison
+###########     face comparison with Face_recognition lib
 
 def testFaceRecognitionLib():
     #load
@@ -48,9 +85,13 @@ def testFaceRecognitionLib():
             cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
         
-    print(results)
-    cv2.imshow("first image", image1)
-    cv2.imshow("second image", image2)
-    cv2.waitKey(0)
+    #print(results)
+    return results[0]
+    #cv2.imshow("first image", image1)
+    #cv2.imshow("second image", image2)
+    #cv2.waitKey(0)
+
+
+main()
 
 # https://face-recognition.readthedocs.io/en/latest/_modules/face_recognition/api.html#batch_face_locations

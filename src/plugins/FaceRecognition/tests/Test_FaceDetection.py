@@ -51,7 +51,7 @@ def testOpenCVDetection():
     print("Testing with OpenCV ....")
     
     start = time.time()
-    image = OpenCVDetection(sys.argv[1], sys.argv[2]) 
+    image = OpenCVDetection(sys.argv[1]) 
     duration = time.time() - start
     
     height, width = image.shape[:2]
@@ -65,8 +65,8 @@ def testOpenCVDetection():
 
 
 
-def OpenCVDetection(imagePath, cascPath):
-    faceCascade = cv2.CascadeClassifier(cascPath) #cena para detetar caras (tbm n sei muito os detalhes)
+def OpenCVDetection(imagePath):
+    faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml") #cena para detetar caras (tbm n sei muito os detalhes)
     
     image = cv2.imread(imagePath)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) #conversão para escala de cinzentos
