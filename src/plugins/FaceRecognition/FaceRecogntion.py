@@ -4,7 +4,7 @@ from engine import PluginCore
 from model import Meta
 
 
-class SamplePlugin(PluginCore):
+class FaceRecogntion(PluginCore):
 
     def __init__(self, logger: Logger) -> None:
         super().__init__(logger)
@@ -20,5 +20,9 @@ class SamplePlugin(PluginCore):
             :args is a dictionaire
             :returns a a value related to the metric analysed
         """
+        
         self._logger.debug(f'Command: {command} -> {self.meta}')
         return device
+
+
+    

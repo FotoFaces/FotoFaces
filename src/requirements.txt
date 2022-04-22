@@ -1,3 +1,6 @@
 PyYAML==5.4
 packaging==20.4
 dacite==1.5.0
+opencv-python==4.5.5.64 
+numpy==1.21.6s
+dlib==19.23.1
