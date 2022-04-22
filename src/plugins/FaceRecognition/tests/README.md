@@ -17,3 +17,7 @@ Face_recognition > Old Fotofaces
 <h3>Exatidão (Testados localmente)</h3>
 
 Old FotoFaces > Face_recognition (n reconhece as vezes)
+
+
+<h3>Choice: <br>Old FotoFaces<br></h3> 
+<h3>Use: <br>FotoFaces 2.0 (refactor)<br></h3> 

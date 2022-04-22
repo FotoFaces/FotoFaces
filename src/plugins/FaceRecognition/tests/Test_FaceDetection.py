@@ -78,7 +78,7 @@ def OpenCVDetection(imagePath):
         minSize=(30, 30),
         flags = cv2.CASCADE_SCALE_IMAGE
     ) 
-
+    print("Result: ",faces)
     for (x, y, w, h) in faces: #desenhar caras
         cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
     return image
@@ -107,6 +107,8 @@ def OldDetection(imagePath):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     max_shape, max_bb, raw_shape = fotofaces.detect_face(gray)
+    print("Result: ",raw_shape)
+
     #desenhar retangulos 
     cv2.rectangle(image, (max_bb[0], max_bb[1]), (max_bb[0]+max_bb[2], max_bb[1]+max_bb[3]), (0, 255, 0), 2)
     return image
@@ -118,5 +120,5 @@ def OldDetection(imagePath):
 testOpenCVDetection()
 print("\n\n")
 testOldDetection()
-print("\n\n")
-testFaceRecognitionLib()
+#print("\n\n")
+#testFaceRecognitionLib()
