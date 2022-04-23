@@ -213,25 +213,7 @@ def detect_face(img):
                 raw_shape = predicted
     return max_shape, max_bb, raw_shape
 
-    
-    
 
-def face_verification(frame, shape, data, reference):
-	candidate = dlib.get_face_chip(frame, shape)   
-	candidate_descriptor = facerec.compute_face_descriptor(candidate) 
-	# reads the PACO picture
-	gray = cv2.cvtColor(reference, cv2.COLOR_BGR2GRAY)
-	shape, bb, raw_shape = detect_face(gray)
-	data["Face Reference Detected"] = False
-	if bb is not None:
-		data["Face Reference Detected"] = True
-		old = dlib.get_face_chip(reference, raw_shape)   
-		old_descriptor = facerec.compute_face_descriptor(old) 
-
-		candidate_descriptor = np.asarray(candidate_descriptor)
-		old_descriptor = np.asarray(old_descriptor)
-		dist = np.linalg.norm(old_descriptor - candidate_descriptor)
-		return dist
 
 
 main()
