@@ -10,6 +10,14 @@ import base64
 import json
 
 import appCore
+# kafka implementation
+import json
+import sys
+from random import choice
+from argparse import ArgumentParser, FileType
+from configparser import ConfigParser
+from confluent_kafka import Producer, Consumer, OFFSET_BEGINNING
+
 
 app = Flask(__name__)
 coreApplication = appCore.ApplicationCore()
@@ -22,6 +30,19 @@ Reads two input images and an identifier:
 
 Outputs a dictionary with the cropped image (depending on some requirements), metrics and the same identifier.
 """
+
+# kafka implementation
+# Topic for producing messages
+TOPIC_PRODUCE = "image"
+# Topic for consuming messages
+TOPIC_CONSUME = "rev_image"
+
+# Set up a callback to handle the '--reset' flag.
+def reset_offset(consumer, partitions):
+    if args.reset:
+        for p in partitions:
+            p.offset = OFFSET_BEGINNING
+        consumer.assign(partitions)
 
 
 # Cropping threshold (for higher values the cropping might be bigger than the image itself
@@ -144,15 +165,47 @@ def upload_image():
             np.frombuffer(base64.b64decode(img1), np.uint8), cv2.IMREAD_COLOR
         )
 
+
+        # # Kafka Implementation to message deal with the REST API
+
+        # # GET photo from the database
+        # # produce a json message to send to the consumer
+        # producer.produce(TOPIC_PRODUCE, json.dumps({"command": "get_photo", "id": identifier}))
+        # producer.flush()
+
+        # # Poll for new messages from Kafka and save the json object
+        # msg_json = None
+        # try:
+        #     while True:
+        #         msg = consumer.poll(1.0)
+        #         if msg is None:
+        #             pass
+        #         elif msg.error():
+        #             print(f"ERROR Recieving GET from the Database: {msg.error()}")
+        #         else:
+        #             msg_json = json.loads(msg.value().decode('utf-8'))
+        #             print(f"Consumed event from topic {TOPIC_CONSUME}: message = {msg_json}")
+        #             break
+        # except KeyboardInterrupt:
+        #     return False
+
+        # # idk why it needs this but it doesn't work without it
+        # msg_json = json.loads(msg_json)
+        # # old photo from the database
+        # old_photo = msg_json["photo"]
+        # print(old_photo)
+
+
+
         data = {}
-        data["Colored Picture"] = is_gray(candidate)
+        data["Colored Picture"] = coreApplication.is_gray(candidate)
         if data["Colored Picture"] == False:
             dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
             return dict_data
         else:
             # reads the candidate picture
             gray = cv2.cvtColor(candidate, cv2.COLOR_BGR2GRAY)
-            shape, bb, raw_shape = detect_face(gray)
+            shape, bb, raw_shape = coreApplication.detect_face(gray)
             data["Face Candidate Detected"] = True
             if bb is None:
                 # No face detected
@@ -160,8 +213,8 @@ def upload_image():
                 dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
                 return dict_data
             else:
-                image, shape = rotate(candidate, shape)
-                roi = cropping(image, shape, data)
+                image, shape = coreApplication.rotate(candidate, shape)
+                roi = coreApplication.cropping(image, shape, data)
                 data["Cropping"] = True
                 if roi is None:
                     # Face is not centered and/or too close to the camera
@@ -178,7 +231,6 @@ def upload_image():
                         cv2.IMREAD_COLOR,
                     )
                     resp = __init_app(
-
                         candidate=candidate,
                         reference=reference,
                         raw_shape=raw_shape,
@@ -186,6 +238,7 @@ def upload_image():
                         shape=shape,
                         final_img=final_img,
                     )
+
                     print(f"{resp}")
                     for k,v in resp.items():
                         data[k] = v
@@ -210,4 +263,25 @@ plEngine = PluginEngine(options=
 
 
 if __name__ == "__main__":
+    # Parse the command line.
+    parser = ArgumentParser()
+    parser.add_argument('config_file', type=FileType('r'))
+    parser.add_argument('--reset', action='store_true')
+    args = parser.parse_args()
+
+    # Parse the configuration.
+    # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
+    config_parser = ConfigParser()
+    config_parser.read_file(args.config_file)
+    config = dict(config_parser['default'])
+
+    # Create Producer instance
+    producer = Producer(config)
+
+    # Create Consumer instance
+    config.update(config_parser['consumer'])
+    consumer = Consumer(config)
+
+    consumer.subscribe([TOPIC_CONSUME], on_assign=reset_offset)
+
     app.run(debug=True)

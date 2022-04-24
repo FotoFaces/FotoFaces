@@ -1,8 +1,9 @@
 PyYAML==5.4
 packaging==20.4
 dacite==1.5.0
-opencv-python==4.2.0.34
-opencv-contrib-python==4.2.0.34
+opencv-python
+opencv-contrib-python
 dlib==19.19.0
 Flask==2.1.0
 gunicorn==20.0.4
+confluent-kafka

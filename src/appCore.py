@@ -61,13 +61,13 @@ class ApplicationCore():
                 and rect.left() >= 0
             ):
                 predicted = self.predictor(gray_image, rect)
-                bb = rect_to_bb(rect)
-                area = bb_area(bb)
+                bb = self.rect_to_bb(rect)
+                area = self.bb_area(bb)
                 # only returns the largest bounding box to avoid smaller false positives
                 if area > max_area:
                     max_area = area
                     max_bb = bb
-                    max_shape = shape_to_np(predicted)
+                    max_shape = self.shape_to_np(predicted)
                     raw_shape = predicted
 
         return max_shape, max_bb, raw_shape
@@ -102,10 +102,10 @@ class ApplicationCore():
         middle_X = int((shape[0][0] + shape[16][0]) / 2)
         middle_Y = int((shape[19][1] + shape[33][1]) / 2)
 
-        x1 = int(middle_X - h * CROP_ALPHA)
-        y1 = int(middle_Y - h * CROP_ALPHA)
-        x2 = int(middle_X + h * CROP_ALPHA)
-        y2 = int(middle_Y + h * CROP_ALPHA)
+        x1 = int(middle_X - h *self._CROP_ALPHA)
+        y1 = int(middle_Y - h *self._CROP_ALPHA)
+        x2 = int(middle_X + h *self._CROP_ALPHA)
+        y2 = int(middle_Y + h *self._CROP_ALPHA)
         tl = (x1, y1)
         br = (x2, y2)
 

@@ -9,10 +9,10 @@ logging:
   level: 'DEBUG'
 plugins:
   # Packages to download from registry
-  - sample-plugin
   - FaceRecognition
   - Gaze
   - Brightness
   - ImageQuality
   - EyesOpen
   - Sunglasses
+  - HeadPose

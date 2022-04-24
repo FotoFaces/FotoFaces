@@ -8,13 +8,14 @@ import cv2
 # Estimates gaze by detecting the pupils through morphological operations, finding their contours and estimating their distance to the corners
 class GazePlugin(PluginCore):
 
-    def __init__(self, logger: Logger) -> None:
-        super().__init__(logger)
+    def __init__(self, logger: Logger, appCore) -> None:
+        super().__init__(logger, appCore)
         self.meta = Meta(
             name='Gaze Plugin',
             description='Plugin for Gaze detection',
             version='0.0.1'
         )
+        self.appCore = appCore
 
     def dist_ratio(self, p1, p2, center):
         p1_dist = abs(center-p1)
@@ -31,7 +32,7 @@ class GazePlugin(PluginCore):
     def invoke(self, args):
         image = args["image"]
         shape = args["shape"]
-    
+
         ratio = []
         kernel = np.ones((3, 3), np.uint8)
         # Left eye
@@ -98,5 +99,5 @@ class GazePlugin(PluginCore):
             focus = sum(ratio)/len(ratio)
         elif len(ratio) == 1:
             focus = ratio[0]
-    
+
         return ("focus", focus)
