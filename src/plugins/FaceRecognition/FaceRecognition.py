@@ -64,5 +64,23 @@ class FaceRecognition(PluginCore):
                     raw_shape = predicted
         return max_shape, max_bb, raw_shape
 
+    def rect_to_bb(rect):
+        x = rect.left()
+        y = rect.top()
+        w = rect.right() - x
+        h = rect.bottom() - y
+        return [x, y, w, h]
+
+    def bb_area(bb):
+        return (bb[0]+bb[2])*(bb[1]+bb[3])
+    
+    def shape_to_np(shape):
+        landmarks = np.zeros((68,2), dtype = int)
+
+        for i in range(0,68):
+            landmarks[i] = (shape.part(i).x, shape.part(i).y)
+
+        return landmarks
+
 
     
