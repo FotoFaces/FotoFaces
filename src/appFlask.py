@@ -284,4 +284,4 @@ if __name__ == "__main__":
 
     consumer.subscribe([TOPIC_CONSUME], on_assign=reset_offset)
 
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
