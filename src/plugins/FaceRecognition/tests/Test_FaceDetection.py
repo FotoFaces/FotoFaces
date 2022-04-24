@@ -33,14 +33,14 @@ def testFaceRecognitionLib():
     face_locations = fc.face_locations(image) # face detection algorithm
     duration = time.time() - start
 
-    print(face_locations)
+    print("Number of Faces: ",len(face_locations))
 
     for face in face_locations:
         [x,y,w,h] = rect_to_bb(list(face)) # conversão (só aceita ¯\_(ツ)_/¯ )
         cv2.rectangle(im, (x, y), (x+w, y+h), (0, 255, 0), 2) # desenhar retangulos
     
     cv2.imshow("Faces found", im)
-    cv2.waitKey(0)
+    #cv2.waitKey(0)
     print("Duration: "+ str(duration))
     print("End of Testing with OpenCV")
 
@@ -57,7 +57,7 @@ def testOpenCVDetection():
     height, width = image.shape[:2]
     res = cv2.resize(image,(width//4, height//4), interpolation = cv2.INTER_AREA)
     cv2.imshow("Faces found", res)
-    cv2.waitKey(0)
+    #cv2.waitKey(0)
     
     print("Duration: "+ str(duration))
     print("End of Testing with OpenCV")
@@ -78,7 +78,7 @@ def OpenCVDetection(imagePath):
         minSize=(30, 30),
         flags = cv2.CASCADE_SCALE_IMAGE
     ) 
-    print("Result: ",faces)
+    print("Number of Faces: ", len(faces))
     for (x, y, w, h) in faces: #desenhar caras
         cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
     return image
@@ -95,7 +95,7 @@ def testOldDetection():
 
     height, width = image.shape[:2]
     res = cv2.resize(image,(width//4, height//4), interpolation = cv2.INTER_AREA)
-    cv2.waitKey(0)
+    #cv2.waitKey(0)
     
     print("Duration: "+ str(duration))
     print("End of Testing with Old Fotofaces Algorithm")
@@ -107,7 +107,8 @@ def OldDetection(imagePath):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     max_shape, max_bb, raw_shape = fotofaces.detect_face(gray)
-    print("Result: ",raw_shape)
+
+    print("Number of faces: 1" ) if  raw_shape  else print("Number of faces: 0" )
 
     #desenhar retangulos 
     cv2.rectangle(image, (max_bb[0], max_bb[1]), (max_bb[0]+max_bb[2], max_bb[1]+max_bb[3]), (0, 255, 0), 2)
@@ -120,5 +121,6 @@ def OldDetection(imagePath):
 testOpenCVDetection()
 print("\n\n")
 testOldDetection()
-#print("\n\n")
-#testFaceRecognitionLib()
+print("\n\n")
+testFaceRecognitionLib()
+cv2.waitKey(0)

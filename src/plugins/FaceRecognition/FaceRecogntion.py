@@ -15,6 +15,7 @@ class FaceRecogntion(PluginCore):
         )
 
     def invoke(self, **args):
+        
         """
             Logic of the plugin
             :args is a dictionaire
