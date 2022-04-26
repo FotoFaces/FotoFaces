@@ -1,5 +1,4 @@
 from logging import Logger
-
 from engine import PluginCore
 from model import Meta
 
@@ -7,6 +6,7 @@ from model import Meta
 class FaceRecognition(PluginCore):
 
     def __init__(self, logger: Logger) -> None:
+        super().__init__(logger)
         self.meta = Meta(
             name='Face Recognition plugin',
             description='Plugin that returns a distance between two faces within a roi, the bigger the distance the lower the people look a like.Meaning they are not the same person.',
