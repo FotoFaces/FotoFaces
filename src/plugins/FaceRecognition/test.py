@@ -12,7 +12,7 @@ def compareGonçaloOldWithNoGlasses():
     assert retval[0] == True
 
 def compareGonçaloWithPedro():
-    args = {"new_photo": "tests/GoncaloNoGlasses.jpg", "reference": "tests/Pedro.jpg"}
+    args = {"new_photo": "tests/GoncaloOldGlasses.jpg", "reference": "tests/Pedro.jpg"}
     fc = FaceRecognition()
     retval= fc.invoke(args)
     assert len(retval) == 1
