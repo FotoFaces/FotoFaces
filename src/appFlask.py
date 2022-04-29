@@ -9,6 +9,8 @@ import dlib
 import base64
 import json
 
+from flask_cors import CORS, cross_origin
+
 # kafka implementation
 import json
 import sys
@@ -18,7 +20,9 @@ from configparser import ConfigParser
 from confluent_kafka import Producer, Consumer, OFFSET_BEGINNING
 
 
+
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 """
@@ -154,14 +158,17 @@ def cropping(image, shape, data):
 
 
 @app.route("/", methods=["POST"])
+@cross_origin()
 def upload_image():
-    if "candidate" in request.form.keys() and "id" in request.form.keys():
-        img1 = request.form["candidate"]
-        identifier = request.form["id"]
+    print("recieved")
+    
+    if True:
+        candidate = request.json["candidate"]
+        identifier = request.json["id"]
         identifier_decoded = identifier
-        candidate = cv2.imdecode(
-            np.frombuffer(base64.b64decode(img1), np.uint8), cv2.IMREAD_COLOR
-        )
+        # candidate = cv2.imdecode(
+        #     np.frombuffer(base64.b64decode(candidate), np.uint8), cv2.IMREAD_COLOR
+        # )
         
         # Kafka Implementation to message deal with the REST API
         

@@ -101,6 +101,7 @@ if __name__ == '__main__':
     config_parser = ConfigParser()
     config_parser.read_file(args.config_file)
     config = dict(config_parser['default'])
+    config_prod = config
     
     # Create Consumer instance
     config.update(config_parser['consumer'])
@@ -136,15 +137,11 @@ if __name__ == '__main__':
                     
                 # send new msg
                 print(f"Send new message back")
-                config_parser = ConfigParser()
-                config_parser.read_file(args.config_file)
-                config = dict(config_parser['default'])
                 
                 # Create Producer instance
-                producer = Producer(config)
+                producer = Producer(config_prod)
                 producer.produce(TOPIC_PRODUCE, json.dumps(new_msg))
                 producer.flush()
-                producer.close()
                 
     except KeyboardInterrupt:
         pass
