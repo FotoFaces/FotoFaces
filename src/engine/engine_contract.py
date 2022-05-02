@@ -2,6 +2,7 @@ from logging import Logger
 from typing import Optional, List
 
 from model import Meta
+import appCore
 
 
 class IPluginRegistry(type):
@@ -23,12 +24,13 @@ class PluginCore(object, metaclass=IPluginRegistry):
 
     meta: Optional[Meta]
 
-    def __init__(self, logger: Logger) -> None:
+    def __init__(self, logger: Logger, coreApplication : appCore.ApplicationCore ) -> None:
         """
         Entry init block for plugins
         :param logger: logger that plugins can make use of
         """
         self._logger = logger
+        self._coreApplication = logger
 
     def invoke(self, args):
         """
