@@ -140,7 +140,7 @@ class User(Resource):
         name = request.form['name']
         password = request.form['password']
         email = request.form['email']
-        
+
         with open(photo, "rb") as f:
             can_bytes = f.read()
         photo = base64.b64encode(can_bytes).decode("utf8")
@@ -178,7 +178,7 @@ api.add_resource(User, '/add_user/<int:identification>')
 # main
 if __name__ == "__main__":
     # run Flask app
-    app.run()
+    app.run(host="0.0.0.0", port=8393)
 
 
 
@@ -186,6 +186,6 @@ if __name__ == "__main__":
 
 - https://flask-restful.readthedocs.io/en/latest/quickstart.html#resourceful-routing
 - https://kafka-python.readthedocs.io/en/master/
-- 
+-
 
 """

@@ -6,6 +6,16 @@ services:
       - "5000:5000"
     depends_on:
       - kafka
+
+  api-database:
+    build: ../APIs/.
+    container_name: api
+    hostname: api
+    ports:
+      - "8393:8393"
+    depends_on:
+      - kafka
+
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:

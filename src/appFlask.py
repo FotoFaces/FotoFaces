@@ -11,6 +11,7 @@ import json
 
 import appCore
 from flask_cors import CORS, cross_origin
+
 # kafka implementation
 import json
 import sys
@@ -18,7 +19,6 @@ from random import choice
 from argparse import ArgumentParser, FileType
 from configparser import ConfigParser
 from confluent_kafka import Producer, Consumer, OFFSET_BEGINNING
-
 
 
 app = Flask(__name__)
@@ -61,16 +61,16 @@ facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.
 @app.route("/hello", methods=["POST"])
 @cross_origin()
 def someOther():
-    print(request)
-    print(request.json)
-    print(request.form)
-    return  "ola", 200
+    app.logger.info(request)
+    app.logger.info(request.json)
+    app.logger.info(request.form)
+    return "ola", 200
 
 
 @app.route("/", methods=["POST"])
 @cross_origin()
 def upload_image():
-    print("recieved")
+    app.logger.info("recieved")
     if True:
         candidate = request.form["candidate"]
         identifier = request.form["id"]
@@ -83,52 +83,55 @@ def upload_image():
 
         # Parse the configuration.
         # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
-        #config_parser.read_file(ARGS.config_file)
-        #config = dict(config_parser['default'])
+        config_parser.read_file(ARGS.config_file)
+        config = dict(config_parser["default"])
 
         # Create Producer instance
-        #producer = Producer(config)
+        producer = Producer(config)
 
         # Create Consumer instance
-        #config.update(config_parser['consumer'])
-        #consumer = Consumer(config)
+        config.update(config_parser["consumer"])
+        consumer = Consumer(config)
 
-        #consumer.subscribe([TOPIC_CONSUME], on_assign=reset_offset)
-
+        consumer.subscribe([TOPIC_CONSUME], on_assign=reset_offset)
 
         # GET photo from the database
         # produce a json message to send to the consumer
-        #producer.produce(TOPIC_PRODUCE, json.dumps({"command": "get_photo", "id": identifier}))
-        #producer.flush()
-        #print("SENT: {\"command\": \"get_photo\", \"id\": " + identifier + "}")
+        producer.produce(
+            TOPIC_PRODUCE, json.dumps({"command": "get_photo", "id": identifier})
+        )
+        producer.flush()
+        app.logger.info('SENT: {"command": "get_photo", "id": ' + identifier + "}")
 
         # Poll for new messages from Kafka and save the json object
-        # msg_json = None
-        # try:
-        #     while True:
-        #         msg = consumer.poll(1.0)
-        #         if msg is None:
-        #             pass
-        #         elif msg.error():
-        #             print(f"ERROR Recieving GET from the Database: {msg.error()}")
-        #         else:
-        #             msg_json = json.loads(msg.value().decode('utf-8'))
-        #             print(f"Consumed event from topic {TOPIC_CONSUME}")
-        #             break
-        # except KeyboardInterrupt:
-        #     return False
+        msg_json = None
+        try:
+            while True:
+                app.logger.info("here")
+                msg = consumer.poll(1.0)
+                if msg is None:
+                    app.logger.info("None")
+                    pass
+                elif msg.error():
+                    app.logger.info(f"ERROR Recieving GET from the Database: {msg.error()}")
+                else:
+                    msg_json = json.loads(msg.value().decode("utf-8"))
+                    app.logger.info(f"Consumed event from topic {TOPIC_CONSUME}")
+                    break
+        except KeyboardInterrupt:
+            return False
 
         # idk why it needs this but it doesn't work without it
-        #msg_json = json.loads(msg_json)
+        msg_json = json.loads(msg_json)
         # old photo from the database
-        #old_photo = msg_json["photo"]
-
+        old_photo = msg_json["photo"]
+        app.logger.info(msg_json)
 
         data = {}
         data["Colored Picture"] = coreApplication.is_gray(candidate)
         if data["Colored Picture"] == False:
             dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
-            print(dict_data)
+            app.logger.info(dict_data)
             return dict_data
         else:
             # reads the candidate picture
@@ -139,7 +142,7 @@ def upload_image():
                 # No face detected
                 data["Face Candidate Detected"] = False
                 dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
-                print(dict_data)
+                app.logger.info(dict_data)
                 return dict_data
             else:
                 image, shape = coreApplication.rotate(candidate, shape)
@@ -149,7 +152,7 @@ def upload_image():
                     # Face is not centered and/or too close to the camera
                     data["Cropping"] = False
                     dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
-                    print(dict_data)
+                    app.logger.info(dict_data)
                     return dict_data
                 else:
                     data["Resize"] = 500 / roi.shape[0]
@@ -158,7 +161,7 @@ def upload_image():
 
                     # old method
                     # img2 = request.form["reference"]
-                    # print(f"image reference {img2}")
+                    # app.logger.info(f"image reference {img2}")
 
                     # new method with kafka
                     img2 = old_photo
@@ -176,36 +179,41 @@ def upload_image():
                         final_img=final_img,
                     )
 
-                    print(f"{resp}")
-                    for k,v in resp.items():
+                    app.logger.info(f"{resp}")
+                    for k, v in resp.items():
                         data[k] = v
                     __print_plugins_end()
-                    print(data)
+                    app.logger.info(data)
                     return data
     return "", 204
 
 
 def __print_plugins_end() -> None:
-    print("-----------------------------------")
-    print("Plugins are done")
-    print("End of execution")
-    print("-----------------------------------")
+    app.logger.info("-----------------------------------")
+    app.logger.info("Plugins are done")
+    app.logger.info("End of execution")
+    app.logger.info("-----------------------------------")
 
 
 def __init_app(**args):
     return plEngine.start(**args)
 
-plEngine = PluginEngine(options=
-                        {"log_level": "DEBUG", "directory": "./plugins/", "coreApplication": coreApplication },
-        )
+
+plEngine = PluginEngine(
+    options={
+        "log_level": "DEBUG",
+        "directory": "./plugins/",
+        "coreApplication": coreApplication,
+    },
+)
 
 
 if __name__ == "__main__":
     # Parse the command line.
-    #parser = ArgumentParser()
-    #parser.add_argument('config_file', type=FileType('r'))
-    #parser.add_argument('--reset', action='store_true')
-    #ARGS = parser.parse_args()
-    #config_parser = ConfigParser()
+    parser = ArgumentParser()
+    parser.add_argument('config_file', type=FileType('r'))
+    parser.add_argument('--reset', action='store_true')
+    ARGS = parser.parse_args()
+    config_parser = ConfigParser()
 
-    app.run(debug=True, host="0.0.0.0", port=8080)
+    app.run(debug=True, host="0.0.0.0", port=5000)
