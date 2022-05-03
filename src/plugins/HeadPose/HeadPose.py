@@ -10,24 +10,26 @@ import cv2
 
 class Sunglasses(PluginCore):
 
-    def __init__(self, logger: Logger) -> None:
-        super().__init__(logger)
+    def __init__(self, logger: Logger, appCore) -> None:
+        super().__init__(logger, appCore)
         self.meta = Meta(
             name='Sunglasses plugin',
             description='Plugin for verifying if there are sunglasses',
             version='0.0.1'
         )
-        
+
+        self.appCore = appCore
+
     def invoke(self, args):
-        
+
         im = args["image"]
         features = args["shape"]
-        
+
         size = im.shape
 
         image_points = np.array([
-                                features[30],     # Nose 
-                                features[36],     # Left eye 
+                                features[30],     # Nose
+                                features[36],     # Left eye
                                 features[45],     # Right eye
                                 features[48],     # Left Mouth corner
                                 features[54],     # Right mouth corner
@@ -38,7 +40,7 @@ class Sunglasses(PluginCore):
         model_points = np.array([
                                 (0.0, 0.0, 0.0),             # Nose
                                 (-165.0, 170.0, -135.0),     # Left eye
-                                (165.0, 170.0, -135.0),      # Right eye 
+                                (165.0, 170.0, -135.0),      # Right eye
                                 (-150.0, -150.0, -125.0),    # Left Mouth corner
                                 (150.0, -150.0, -125.0),     # Right mouth corner
                                 (0.0, -330.0, -65.0)		 # Chin
@@ -59,7 +61,7 @@ class Sunglasses(PluginCore):
         rv_matrix = cv2.Rodrigues(rotation_vector)[0]
 
         proj_matrix = np.hstack((rv_matrix, translation_vector))
-        eulerAngles = cv2.decomposeProjectionMatrix(proj_matrix)[6] 
+        eulerAngles = cv2.decomposeProjectionMatrix(proj_matrix)[6]
 
         pitch, yaw, roll = [math.radians(x) for x in eulerAngles]
         pitch = math.degrees(math.asin(math.sin(pitch)))

@@ -1,4 +1,5 @@
 import os
+import appCore
 from importlib import import_module
 from logging import Logger
 from typing import List, Any, Dict
@@ -61,14 +62,14 @@ class PluginUseCase:
             self.__search_for_plugins_in(plugins_path, package_name)
 
     @staticmethod
-    def register_plugin(module: type, logger: Logger) -> PluginCore:
+    def register_plugin(module: type, logger: Logger, coreApplication: appCore.ApplicationCore) -> PluginCore:
         """
         Create a plugin instance from the given module
         :param module: module to initialize
         :param logger: logger for the module to use
         :return: a high level plugin
         """
-        return module(logger)
+        return module(logger, coreApplication)
 
     @staticmethod
     def hook_plugin(plugin: PluginCore):

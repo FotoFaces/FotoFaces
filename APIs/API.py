@@ -101,10 +101,8 @@ if __name__ == '__main__':
     config_parser = ConfigParser()
     config_parser.read_file(args.config_file)
     config = dict(config_parser['default'])
-    
-    # Create Producer instance
-    producer = Producer(config)
-    
+    config_prod = config
+
     # Create Consumer instance
     config.update(config_parser['consumer'])
     consumer = Consumer(config)
@@ -115,30 +113,36 @@ if __name__ == '__main__':
     # Poll for new messages from Kafka and print them.
     try:
         while True:
+
+            # timeout work please
+
             msg = consumer.poll(1.0)
             if msg is None:
                 pass
             elif msg.error():
                 print(f"ERROR: {msg.error()}")
-            else:                
+            else:
                 msg_json = json.loads(msg.value().decode('utf-8'))
                 print(f"Receiving message -> msg: {msg_json}")
-                
+
                 # print("Consumed event from topic {topic}: message = {message:12}".format(
                 #     topic=msg.topic(), message=msg.value().decode('utf-8')))
-                
+
                 if msg_json["command"] == "update_photo":
                     new_msg = update_photo(int(msg_json["id"]), msg_json["photo"])
                 elif msg_json["command"] == "get_photo":
                     new_msg = get_photo(int(msg_json["id"]))
                 else:
                     new_msg = {"error": "command not recognized"}
-                    
+
                 # send new msg
-                print(f"Send new message back -> msg: {new_msg}")
+                print(f"Send new message back")
+
+                # Create Producer instance
+                producer = Producer(config_prod)
                 producer.produce(TOPIC_PRODUCE, json.dumps(new_msg))
                 producer.flush()
-                
+
     except KeyboardInterrupt:
         pass
     finally:

@@ -5,8 +5,8 @@ from model import Meta
 
 class FaceRecognition(PluginCore):
 
-    def __init__(self, logger: Logger) -> None:
-        super().__init__(logger)
+    def __init__(self, logger: Logger, appCore) -> None:
+        super().__init__(logger, appCore)
         self.meta = Meta(
             name='Face Recognition plugin',
             description='Plugin that returns a distance between two faces within a roi, the bigger the distance the lower the people look a like.Meaning they are not the same person.',
@@ -15,6 +15,7 @@ class FaceRecognition(PluginCore):
         self.facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
         self.detector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+        self.appCore = appCore
 
     def invoke(self, **args):
         

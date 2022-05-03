@@ -8,19 +8,20 @@ import cv2
 
 class Sunglasses(PluginCore):
 
-    def __init__(self, logger: Logger) -> None:
-        super().__init__(logger)
+    def __init__(self, logger: Logger, appCore) -> None:
+        super().__init__(logger, appCore)
         self.meta = Meta(
             name='Sunglasses plugin',
             description='Plugin for verifying if there are sunglasses',
             version='0.0.1'
         )
-        
+        self.appCore = appCore
+
     def invoke(self, args):
-        
+
         image = args["image"]
         shape = args["shape"]
-        
+
         hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
         # Left eye
