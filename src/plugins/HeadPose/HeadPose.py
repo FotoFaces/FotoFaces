@@ -68,4 +68,4 @@ class Sunglasses(PluginCore):
         roll = -math.degrees(math.asin(math.sin(roll)))
         yaw = math.degrees(math.asin(math.sin(yaw)))
 
-        return ("Head Pose", (pitch, roll, yaw))
+        return ("Head Pose", [pitch, roll, yaw])

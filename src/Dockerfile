@@ -1,6 +1,6 @@
-FROM python:3.7-slim
+FROM python:3.7
 WORKDIR /
-RUN  apt update && apt upgrade  -y && apt install -y gcc musl-dev cmake  librdkafka-dev libx11-dev python3-dev build-essential ffmpeg libsm6 libxext6 curl netcat
+RUN  apt update && apt upgrade  -y && apt install -y netcat python3-opencv
 COPY requirements.txt requirements.txt
 RUN pip install -U pip wheel cmake
 RUN pip install -r requirements.txt

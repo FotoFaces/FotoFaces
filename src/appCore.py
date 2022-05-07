@@ -14,7 +14,6 @@ class ApplicationCore():
         # loads everything needed
         self.detector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
-        self.facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
 
 # Calculates the bounding box area
     def bb_area(self,bb):
@@ -109,7 +108,7 @@ class ApplicationCore():
         tl = (x1, y1)
         br = (x2, y2)
 
-        data["Crop Position"] = (x1, y1, x2, y2)
+        data["Crop Position"] = [x1, y1, x2, y2]
         if x1 >= 0 and y1 >= 0 and x2 < image.shape[1] and y2 < image.shape[0]:
             roi = image[tl[1] : br[1], tl[0] : br[0]]
             return roi

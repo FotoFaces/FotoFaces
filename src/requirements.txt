@@ -9,3 +9,4 @@ gunicorn==20.0.4
 confluent-kafka
 flask-cors
 numpy==1.21.6
+requests==2.27.1

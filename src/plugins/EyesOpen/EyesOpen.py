@@ -17,7 +17,7 @@ class EyesOpen(PluginCore):
         )
         self.appCore = appCore
 
-    def invoke(self, args):
+    def invoke(self,args):
         shape = args["shape"]
 
         leftEAR = (

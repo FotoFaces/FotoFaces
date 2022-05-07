@@ -1,6 +1,7 @@
 from flask import request, Flask
 from engine import PluginEngine
 from util import FileSystem
+import requests
 
 import numpy as np
 import cv2
@@ -70,8 +71,7 @@ def someOther():
 @app.route("/", methods=["POST"])
 @cross_origin()
 def upload_image():
-    app.logger.info("recieved")
-    if True:
+    if "candidate" in request.form.keys() and "id" in request.form.keys():
         candidate = request.form["candidate"]
         identifier = request.form["id"]
         identifier_decoded = identifier
@@ -79,54 +79,7 @@ def upload_image():
             np.frombuffer(base64.b64decode(candidate), np.uint8), cv2.IMREAD_COLOR
         )
 
-        # Kafka Implementation to message deal with the REST API
-
-        # Parse the configuration.
-        # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
-        config_parser.read_file(ARGS.config_file)
-        config = dict(config_parser["default"])
-
-        # Create Producer instance
-        producer = Producer(config)
-
-        # Create Consumer instance
-        config.update(config_parser["consumer"])
-        consumer = Consumer(config)
-
-        consumer.subscribe([TOPIC_CONSUME], on_assign=reset_offset)
-
-        # GET photo from the database
-        # produce a json message to send to the consumer
-        producer.produce(
-            TOPIC_PRODUCE, json.dumps({"command": "get_photo", "id": identifier})
-        )
-        producer.flush()
-        app.logger.info('SENT: {"command": "get_photo", "id": ' + identifier + "}")
-
-        # Poll for new messages from Kafka and save the json object
-        msg_json = None
-        try:
-            while True:
-                app.logger.info("here")
-                msg = consumer.poll(1.0)
-                if msg is None:
-                    app.logger.info("None")
-                    pass
-                elif msg.error():
-                    app.logger.info(f"ERROR Recieving GET from the Database: {msg.error()}")
-                else:
-                    msg_json = json.loads(msg.value().decode("utf-8"))
-                    app.logger.info(f"Consumed event from topic {TOPIC_CONSUME}")
-                    break
-        except KeyboardInterrupt:
-            return False
-
-        # idk why it needs this but it doesn't work without it
-        msg_json = json.loads(msg_json)
-        # old photo from the database
-        old_photo = msg_json["photo"]
-        app.logger.info(msg_json)
-
+        app.logger.info(f"Identifier {identifier} requested updated with candidate photo {candidate[:30]}")
         data = {}
         data["Colored Picture"] = coreApplication.is_gray(candidate)
         if data["Colored Picture"] == False:
@@ -164,19 +117,23 @@ def upload_image():
                     # app.logger.info(f"image reference {img2}")
 
                     # new method with kafka
-                    img2 = old_photo
 
+                    response = requests.get(f'http://localhost:8393/image/{identifier_decoded}')
+                    response_json = response.json()
+                    old_photo = response_json["photo"]
+                    app.logger.info(f"Received photo {old_photo[:30]}")
                     reference = cv2.imdecode(
-                        np.frombuffer(base64.b64decode(img2), np.uint8),
+                        np.frombuffer(base64.b64decode(old_photo), np.uint8),
                         cv2.IMREAD_COLOR,
                     )
-                    resp = __init_app(
+                    app.logger.info(f"Received photo decoded by cv2 {reference[:30]}")
+                    resp = plEngine.start(
                         candidate=candidate,
                         reference=reference,
                         raw_shape=raw_shape,
                         image=image,
                         shape=shape,
-                        final_img=final_img,
+                        final_img=final_img
                     )
 
                     app.logger.info(f"{resp}")
@@ -196,7 +153,7 @@ def __print_plugins_end() -> None:
 
 
 def __init_app(**args):
-    return plEngine.start(**args)
+    return
 
 
 plEngine = PluginEngine(
@@ -210,10 +167,5 @@ plEngine = PluginEngine(
 
 if __name__ == "__main__":
     # Parse the command line.
-    parser = ArgumentParser()
-    parser.add_argument('config_file', type=FileType('r'))
-    parser.add_argument('--reset', action='store_true')
-    ARGS = parser.parse_args()
-    config_parser = ConfigParser()
 
     app.run(debug=True, host="0.0.0.0", port=5000)

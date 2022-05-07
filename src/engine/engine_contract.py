@@ -32,7 +32,7 @@ class PluginCore(object, metaclass=IPluginRegistry):
         self._logger = logger
         self._coreApplication = logger
 
-    def invoke(self, args):
+    def invoke(self, **args):
         """
         Starts main plugin flow
         :param args: possible arguments for the plugin
