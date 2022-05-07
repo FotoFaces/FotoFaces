@@ -6,4 +6,4 @@ while ! nc -vz kafka 9092
     sleep 7
   done
 
-python API.py config_producer.ini
+python RESTApi.py
