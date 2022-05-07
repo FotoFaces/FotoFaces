@@ -9,4 +9,4 @@ RUN ls
 RUN chmod 777 wait.sh
 RUN ls -alh
 COPY . .
-CMD ["sh","./wait.sh"]
+CMD ["python","RESTApi.py"]
