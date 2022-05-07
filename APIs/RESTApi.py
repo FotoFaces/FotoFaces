@@ -72,7 +72,7 @@ class Image(Resource):
             with sql.connect('mydb') as con:
                 cur = con.cursor()
                 # SELECT * FROM <Table of Users> WHERE <identification> = <inputed identification>
-                cur.execute(f"SELECT photo FROM User WHERE id = \'{identification}\'")
+                cur.execute("SELECT photo FROM User WHERE id = ?", (identification,))
                 result = cur.fetchall()
                 cur.close()
                 # in case we dont get any results
@@ -110,7 +110,7 @@ class Image(Resource):
             with sql.connect('mydb') as con:
                 cur = con.cursor()
                 # UPDATE <Table of Users> SET <photo> = <inputed photo> WHERE <identification> = <inputed identification>
-                cur.execute(f"UPDATE User SET photo = \'{photo}\' WHERE id = \'{identification}\'")
+                cur.execute("UPDATE User SET photo = ? WHERE id = ?", (photo, identification))
                 con.commit()
                 cur.close()
                 app.logger.debug(f"Successful query")
@@ -151,7 +151,7 @@ class User(Resource):
             with sql.connect('mydb') as con:
                 cur = con.cursor()
                 # INSERT INTO <Table of Users> VALUES (<values necessary for the Table of Users>)
-                cur.execute(f"INSERT INTO User VALUES (\'{identification}\', \'{email}\', \'{name}\', \'{password}\', \'{photo}\')")
+                cur.execute("INSERT INTO User (id, email, full_name, password, photo) VALUES (?,?,?,?,?)",( identification, email, name, password, photo))
                 con.commit()
                 cur.close()
                 app.logger.debug(f"Successful query")
@@ -178,9 +178,10 @@ api.add_resource(User, '/add_user/<int:identification>')
 # main
 if __name__ == "__main__":
     # run Flask app
-    app.run(host="0.0.0.0", port=8393)
+    app.run(debug=True,host="0.0.0.0", port=8393)
 
 
+    app.logger.info( flask.request.remote_addr)
 
 """ References
 
