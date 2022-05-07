@@ -35,19 +35,6 @@ Reads two input images and an identifier:
 Outputs a dictionary with the cropped image (depending on some requirements), metrics and the same identifier.
 """
 
-# kafka implementation
-# Topic for producing messages
-TOPIC_PRODUCE = "image"
-# Topic for consuming messages
-TOPIC_CONSUME = "rev_image"
-
-# Set up a callback to handle the '--reset' flag.
-def reset_offset(consumer, partitions):
-    if ARGS.reset:
-        for p in partitions:
-            p.offset = OFFSET_BEGINNING
-        consumer.assign(partitions)
-
 
 # Cropping threshold (for higher values the cropping might be bigger than the image itself
 # which will make the app consider that the face is out of bounds)
@@ -112,12 +99,6 @@ def upload_image():
                     final_img = cv2.resize(roi, (500, 500))
                     # start plugins
 
-                    # old method
-                    # img2 = request.form["reference"]
-                    # app.logger.info(f"image reference {img2}")
-
-                    # new method with kafka
-
                     response = requests.get(f'http://localhost:8393/image/{identifier_decoded}')
                     response_json = response.json()
                     old_photo = response_json["photo"]
@@ -126,6 +107,7 @@ def upload_image():
                         np.frombuffer(base64.b64decode(old_photo), np.uint8),
                         cv2.IMREAD_COLOR,
                     )
+                    
                     app.logger.info(f"Received photo decoded by cv2 {reference[:30]}")
                     resp = plEngine.start(
                         candidate=candidate,
