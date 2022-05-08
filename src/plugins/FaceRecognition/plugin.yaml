@@ -1,0 +1,23 @@
+name: 'Face Recognition'
+alias: 'FaceRecognition'
+creator: 'Daniel Canedo'
+runtime:
+  main: 'FaceRecognition.py'
+repository: ''
+description: ''
+version: '0.0.2'
+requirements:
+  - name: 'PyYAML'
+    version: '5.3.1'
+  - name: 'pytz'
+    version: '2019.3'
+  - name: "opencv-python"
+    version: '4.2.0.34'
+  - name: 'opencv-contrib-python'
+    version: '4.2.0.34'
+  - name: 'dlib'
+    version: '19.19.0'
+  - name: 'Flask'
+    version: '2.1.0'
+  - name: 'gunicorn'
+    version: '20.0.4'

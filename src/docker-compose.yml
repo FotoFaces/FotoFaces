@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - api-database
+
+  api-database:
+    build: ../APIs/.
+    container_name: api
+    hostname: api
+    ports:
+      - "8393:8393"
