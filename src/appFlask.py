@@ -99,7 +99,13 @@ def upload_image():
                     final_img = cv2.resize(roi, (500, 500))
                     # start plugins
 
-                    response = requests.get(f'http://localhost:8393/image/{identifier_decoded}')
+                    # old method
+                    # img2 = request.form["reference"]
+                    # app.logger.info(f"image reference {img2}")
+
+                    # new method with kafka
+
+                    response = requests.get(f'http://api:8393/image/{identifier_decoded}')
                     response_json = response.json()
                     old_photo = response_json["photo"]
                     app.logger.info(f"Received photo {old_photo[:30]}")

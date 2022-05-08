@@ -9,4 +9,4 @@ RUN ls
 RUN chmod 777 wait.sh
 EXPOSE 5000
 COPY . .
-CMD ["./wait.sh"]
+CMD ["python", "appFlask.py"]
