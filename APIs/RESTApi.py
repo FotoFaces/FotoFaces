@@ -137,7 +137,7 @@ class Image(Resource):
         # curl http://localhost:5000/image/<id> -d "photo=<photo>" -X PUT
 
         # get the photo
-        photo = request.form["photo"]
+        photo = request.form["param"]
 
         # database call
         app.logger.debug("-- Begin -- Database call while updating old photo")
@@ -169,15 +169,6 @@ class User(Resource):
     # get the photo in the database for the user with id inputed
     def get(self, param):
         # curl http://localhost:5000/image/<id> -X GET
-
-
-        message = "adminpg"
-        message_bytes = message.encode('ascii')
-        base64_bytes = base64.b64encode(message_bytes)
-        base64_message = base64_bytes.decode('ascii')
-
-        print(base64_message)
-
 
         name = param
 
