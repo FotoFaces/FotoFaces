@@ -5,7 +5,7 @@
 
 <h3>se quisermos ser um pouco mais rigorosos, n convém é ser acima por causa dos asiaticos</h3>
 
-                avg > 0.24
+                avg > 0.24 ou 0.23
 
 
 
