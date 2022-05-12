@@ -19,7 +19,6 @@ import sys
 from random import choice
 from argparse import ArgumentParser, FileType
 from configparser import ConfigParser
-from confluent_kafka import Producer, Consumer, OFFSET_BEGINNING
 
 
 app = Flask(__name__)
