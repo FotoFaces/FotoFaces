@@ -21,8 +21,8 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 with sql.connect('mydb') as con:
     cur = con.cursor()
     cur.execute("""CREATE TABLE if not exists User (
-        id int primary key,
-        email text,
+        id integer primary key autoincrement,
+        email text not null unique,
         full_name text,
         password text,
         photo blob);""")
@@ -170,7 +170,7 @@ class User(Resource):
     def get(self, param):
         # curl http://localhost:5000/image/<id> -X GET
 
-        name = param
+        email = param
 
         # database call
         app.logger.debug("-- Begin -- Database call while getting the old photo")
@@ -178,28 +178,28 @@ class User(Resource):
             with sql.connect('mydb') as con:
                 cur = con.cursor()
                 # SELECT * FROM <Table of Users> WHERE <identification> = <inputed identification>
-                cur.execute(f"SELECT id, photo, password FROM User WHERE email = \'{name}\'")
+                cur.execute(f"SELECT id, photo, password, full_name FROM User WHERE email = \'{email}\'")
                 result = cur.fetchall()
                 cur.close()
                 # in case we dont get any results
                 if result == []:
                     # debug
                     app.logger.debug(f"{result}")
-                    return jsonify({"command": "get_user", "email": name, "error": "result is empty"})
+                    return jsonify({"command": "get_user", "email": email, "error": "result is empty"})
                 app.logger.debug(f"Successful query")
         # in case we get an unexpected error
         except KeyError as k:
             app.logger.debug(f"Error: {k}")
-            return jsonify({"command": "get_user", "email": name, "error": k})
+            return jsonify({"command": "get_user", "email": email, "error": k})
 
         app.logger.debug("-- End -- Database call while getting the old photo")
 
         # extract photo from the list of results
         # result len should be 1 and only 1
-        (identifier, photo, password) = result[0]
+        (identifier, photo, password, name) = result[0]
 
         # return identification and photo
-        return jsonify({"command": "get_user", "email": name, "photo": photo, "password": password, "id": identifier})
+        return jsonify({"command": "get_user", "email": email, "photo": photo, "password": password, "id": identifier, "name": name})
 
     # PUT method
     # input arguments: identification (id or something similar) -> NMEC if possible
@@ -207,17 +207,11 @@ class User(Resource):
     def put(self, param):
         # curl http://localhost:8393/user/<id> -d "email=<email>" -d "name=<name>" -d "password=<password>" -d "photo=<photo>" -X PUT
 
-        identification = int(param)
-
         # get variables necessary of a user
         photo = request.form['photo']
         name = request.form['name']
         password = request.form['password']
         email = request.form['email']
-
-        with open(photo, "rb") as f:
-            can_bytes = f.read()
-        photo = base64.b64encode(can_bytes).decode("utf8")
 
         # database call
         app.logger.debug("-- Begin -- Database call creating / updating user")
@@ -225,19 +219,19 @@ class User(Resource):
             with sql.connect('mydb') as con:
                 cur = con.cursor()
                 # INSERT INTO <Table of Users> VALUES (<values necessary for the Table of Users>)
-                cur.execute("INSERT INTO User (id, email, full_name, password, photo) VALUES (?,?,?,?,?)",( identification, email, name, password, photo))
+                cur.execute("INSERT INTO User (email, full_name, password, photo) VALUES (?,?,?,?)",(email, name, password, photo))
                 con.commit()
                 cur.close()
                 app.logger.debug(f"Successful query")
         # in case we get an unexpected error
-        except KeyError as k:
+        except Exception as k:
             app.logger.debug(f"Error: {k}")
-            return jsonify({"command": "upload_photo", "id": identification, "photo": photo, "error": k})
+            return jsonify({"command": "upload_photo", "state": "error"})
 
         app.logger.debug("-- End -- Database call creating / updating user")
 
         # return identification and photo
-        return jsonify({"command": "upload_photo", "id": identification, "photo": photo})
+        return jsonify({"command": "upload_photo", "state": "success"})
 
 
 # add Image class to the url so the methods from Image class can get called
