@@ -70,4 +70,4 @@ class Sunglasses(PluginCore):
         V_diff = abs(skin_reference[2] - V_average)
 
 
-        return ("Sunglasses", (S_diff, V_diff))
+        return ("Sunglasses", [S_diff, V_diff])
