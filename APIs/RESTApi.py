@@ -246,7 +246,7 @@ api.add_resource(User, '/user/<param>')
 # main
 if __name__ == "__main__":
     # run Flask app
-    app.run(debug=True,host="0.0.0.0", port=8393)
+    app.run(debug=True,host="0.0.0.0", port=8393, ssl_context='adhoc')
 
 
     app.logger.info( flask.request.remote_addr)
