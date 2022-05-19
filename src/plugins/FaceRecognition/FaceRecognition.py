@@ -17,8 +17,6 @@ class FaceRecognition(PluginCore):
             version='0.0.1'
         )
         self.facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
-        self.detector = dlib.get_frontal_face_detector()
-        self.predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
         self.appCore = appCore
 
 
@@ -40,8 +38,8 @@ class FaceRecognition(PluginCore):
 
 
         #deteção de uma cara nas fotos
-        reference_raw_shape = self.detect_face(reference)[2]
-        photo_raw_shape = self.detect_face(photo)[2]
+        reference_raw_shape = self.appCore.detect_face(reference)[2]
+        photo_raw_shape = self.appCore.detect_face(photo)[2]
 
         #buscar o chip da cara
         reference_chip = dlib.get_face_chip(reference, reference_raw_shape)
@@ -55,7 +53,7 @@ class FaceRecognition(PluginCore):
         tolerance = np.linalg.norm(reference_descriptor - photo_descriptor)
         return ("Face Recognition", tolerance)
 
-    def detect_face(self, img):
+"""     def detect_face(self, img):
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         rects = self.detector(gray_img, 1)
         max_area, max_bb, max_shape, raw_shape = (0, None, None, None)
@@ -88,4 +86,4 @@ class FaceRecognition(PluginCore):
         for i in range(0,68):
             landmarks[i] = (shape.part(i).x, shape.part(i).y)
 
-        return landmarks
+        return landmarks """

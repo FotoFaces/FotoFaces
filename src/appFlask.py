@@ -27,7 +27,7 @@ coreApplication = appCore.ApplicationCore()
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
-logging.basicConfig(filename = "logfile.log",
+logging.basicConfig(filename = "logs/logfile.log",
                     filemode = "w")
 
 logger = logging.getLogger()
