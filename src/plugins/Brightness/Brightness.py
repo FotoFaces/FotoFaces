@@ -19,7 +19,7 @@ class Brightness(PluginCore):
         self.appCore = appCore
         self.CROP_ALPHA = 0.60
 
-    def cropping(image, shape):
+    def cropping(image, shape, data):
         aux = shape[0] - shape[16]
         distance = np.linalg.norm(aux)
 
@@ -45,7 +45,7 @@ class Brightness(PluginCore):
 
         roi = args["candidate"]
         shape = args["shape"]
-        cropped_image = cropping(roi,shape)
+        cropped_image = self.appCore.cropping(roi,shape)
         if cropped_image is None:
             return ("Brightness", -1)
         hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
