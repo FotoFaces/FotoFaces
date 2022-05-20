@@ -45,10 +45,11 @@ class Brightness(PluginCore):
 
         roi = args["candidate"]
         shape = args["shape"]
-        cropped_image = self.appCore.cropping(roi,shape)
+        data = {}
+        cropped_image = self.appCore.cropping(roi,shape,data )
         if cropped_image is None:
             return ("Brightness", -1)
         hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
         h, s, v = cv2.split(hsv)
         avg = np.mean(v)
-        return ("Brightness", avg)
+        return [("Brightness", avg), ("Crop Position", data["Crop Position"])]
