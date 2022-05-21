@@ -63,9 +63,9 @@ def someOther():
 @app.route("/", methods=["POST"])
 @cross_origin()
 def upload_image():
-    logger.info("update")
+    #logger.info("update")
     if "candidate" in request.form.keys() and "id" in request.form.keys():
-        logger.info("first if")
+        #logger.info("first if")
 
         candidate = request.form["candidate"]
         identifier = request.form["id"]
@@ -78,38 +78,38 @@ def upload_image():
         data = {}
         data["Colored Picture"] = coreApplication.is_gray(candidate)
         if data["Colored Picture"] == False:
-            logger.info("no colored picture")
+            #logger.info("no colored picture")
 
             dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
             app.logger.info(dict_data)
             return dict_data
         else:
-            logger.info("colored picture")
+            #logger.info("colored picture")
             # reads the candidate picture
             gray = cv2.cvtColor(candidate, cv2.COLOR_BGR2GRAY)
             shape, bb, raw_shape = coreApplication.detect_face(gray)
             data["Face Candidate Detected"] = True
             if bb is None:
-                logger.info("no face")
+                #logger.info("no face")
                 # No face detected
                 data["Face Candidate Detected"] = False
                 dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
                 app.logger.info(dict_data)
                 return dict_data
             else:
-                logger.info("face detected")
+                #logger.info("face detected")
                 image, shape = coreApplication.rotate(candidate, shape)
                 roi = coreApplication.cropping(image, shape, data)
                 data["Cropping"] = True
                 if roi is None:
-                    logger.info("no cropping")
+                    #logger.info("no cropping")
                     # Face is not centered and/or too close to the camera
                     data["Cropping"] = False
                     dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
                     app.logger.info(dict_data)
                     return dict_data
                 else:
-                    logger.info("cropping")
+                    #logger.info("cropping")
                     data["Resize"] = 500 / roi.shape[0]
                     final_img = cv2.resize(roi, (500, 500))
                     # start plugins
@@ -145,7 +145,7 @@ def upload_image():
                     __print_plugins_end()
                     app.logger.info(data)
 
-                    logger.info(data)
+                    #logger.info(data)
                     return data
     return "", 204
 
