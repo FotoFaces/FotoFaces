@@ -30,4 +30,4 @@ class Brightness(PluginCore):
         hsv = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2HSV)
         h, s, v = cv2.split(hsv)
         avg = np.mean(v)
-        return [("Brightness", avg)]
+        return ("Brightness", avg)
