@@ -99,7 +99,7 @@ def upload_image():
             else:
                 #logger.info("face detected")
                 image, shape = coreApplication.rotate(candidate, shape)
-                roi = coreApplication.cropping(image, shape, data)
+                roi = coreApplication.cropping(image, shape,data)
                 data["Cropping"] = True
                 if roi is None:
                     #logger.info("no cropping")
@@ -128,7 +128,7 @@ def upload_image():
                         np.frombuffer(base64.b64decode(old_photo), np.uint8),
                         cv2.IMREAD_COLOR,
                     )
-                    
+
                     app.logger.info(f"Received photo decoded by cv2 {reference[:30]}")
                     resp = plEngine.start(
                         candidate=candidate,
