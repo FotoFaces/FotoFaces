@@ -92,7 +92,7 @@ class ApplicationCore():
 
 
 # Crops the image into the final PACO image
-    def cropping(self,image, shape, data):
+    def cropping(self,image, shape):
         aux = shape[0] - shape[16]
         distance = np.linalg.norm(aux)
 
@@ -108,8 +108,8 @@ class ApplicationCore():
         tl = (x1, y1)
         br = (x2, y2)
 
-        if "Crop Position" not in data.keys():
-            data["Crop Position"] = [x1, y1, x2, y2]
+        #if "Crop Position" not in data.keys():
+        #    data["Crop Position"] = [x1, y1, x2, y2]
         if x1 >= 0 and y1 >= 0 and x2 < image.shape[1] and y2 < image.shape[0]:
             roi = image[tl[1] : br[1], tl[0] : br[0]]
             return roi
