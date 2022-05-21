@@ -2,7 +2,7 @@ from flask import request, Flask
 from engine import PluginEngine
 from util import FileSystem
 import requests
-import logging
+#import logging
 
 import numpy as np
 import cv2
@@ -27,10 +27,10 @@ coreApplication = appCore.ApplicationCore()
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
-logging.basicConfig(filename = "logs/logfile.log",
-                    filemode = "w")
+#logging.basicConfig(filename = "logs/logfile.log",
+#                    filemode = "w")
 
-logger = logging.getLogger()
+#logger = logging.getLogger()
 
 """
 Reads two input images and an identifier:
