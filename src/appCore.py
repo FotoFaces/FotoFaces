@@ -10,7 +10,6 @@ class ApplicationCore():
     # Cropping threshold (for higher values the cropping might be bigger than the image itself
     # which will make the app consider that the face is out of bounds)
     def __init__(self):
-        self._CROP_ALPHA = 0.95
         # loads everything needed
         self.detector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
@@ -92,7 +91,7 @@ class ApplicationCore():
 
 
 # Crops the image into the final PACO image
-    def cropping(self,image, shape):
+    def cropping(self,image, shape, crop_alpha=0.95):
         aux = shape[0] - shape[16]
         distance = np.linalg.norm(aux)
 
@@ -101,10 +100,10 @@ class ApplicationCore():
         middle_X = int((shape[0][0] + shape[16][0]) / 2)
         middle_Y = int((shape[19][1] + shape[33][1]) / 2)
 
-        x1 = int(middle_X - h *self._CROP_ALPHA)
-        y1 = int(middle_Y - h *self._CROP_ALPHA)
-        x2 = int(middle_X + h *self._CROP_ALPHA)
-        y2 = int(middle_Y + h *self._CROP_ALPHA)
+        x1 = int(middle_X - h *crop_alpha)
+        y1 = int(middle_Y - h *crop_alpha)
+        x2 = int(middle_X + h *crop_alpha)
+        y2 = int(middle_Y + h *crop_alpha)
         tl = (x1, y1)
         br = (x2, y2)
 
