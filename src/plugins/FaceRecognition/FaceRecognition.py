@@ -30,16 +30,19 @@ class FaceRecognition(PluginCore):
 
         #ficheiro para comparação de caras
 
-        photo = args.get("candidate")
         self._logger.info(args.keys())
-        reference = args["reference"]
         self._logger.info(photo[:30])
         self._logger.info(reference[:30])
 
+        reference = args["reference"]
+
+
+
+        photo_raw_shape = args["raw_shape"]
 
         #deteção de uma cara nas fotos
         reference_raw_shape = self.appCore.detect_face(reference)[2]
-        photo_raw_shape = self.appCore.detect_face(photo)[2]
+        
 
         #buscar o chip da cara
         reference_chip = dlib.get_face_chip(reference, reference_raw_shape)
