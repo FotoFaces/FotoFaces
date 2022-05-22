@@ -5,13 +5,13 @@ from model import Meta
 
 import cv2
 
-class Brightness(PluginCore):
+class ImageQuality(PluginCore):
 
     def __init__(self, logger: Logger, appCore) -> None:
         super().__init__(logger, appCore)
         self.meta = Meta(
-            name='Brightness plugin',
-            description='Plugin for Brightness level',
+            name='Image Quality plugin',
+            description='Plugin for quality level of the image',
             version='0.0.1'
         )
         self.appCore = appCore
