@@ -46,7 +46,8 @@ class ApplicationCore():
 
 
 # Detects faces and only returns the largest bounding box
-    def detect_face(self,gray_image):
+    def detect_face(self,image):
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) #conversão para escala de cinzentos
         rects = self.detector(gray_image, 1)
         max_area, max_bb, max_shape, raw_shape = (0, None, None, None)
 
