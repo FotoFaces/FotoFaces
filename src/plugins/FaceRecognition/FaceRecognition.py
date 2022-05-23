@@ -29,12 +29,13 @@ class FaceRecognition(PluginCore):
         """
 
         #ficheiro para comparação de caras
+        reference = args["reference"]
+        candidate = args["candidate"]
 
         self._logger.info(args.keys())
-        self._logger.info(photo[:30])
+        self._logger.info(candidate[:30])
         self._logger.info(reference[:30])
 
-        reference = args["reference"]
 
 
 
@@ -42,11 +43,11 @@ class FaceRecognition(PluginCore):
 
         #deteção de uma cara nas fotos
         reference_raw_shape = self.appCore.detect_face(reference)[2]
-        
+
 
         #buscar o chip da cara
         reference_chip = dlib.get_face_chip(reference, reference_raw_shape)
-        photo_chip = dlib.get_face_chip(photo, photo_raw_shape)
+        photo_chip = dlib.get_face_chip(candidate, photo_raw_shape)
 
         #usar face recognition file
         reference_descriptor = np.asarray(self.facerec.compute_face_descriptor(reference_chip))
