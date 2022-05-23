@@ -86,8 +86,7 @@ def upload_image():
         else:
             #logger.info("colored picture")
             # reads the candidate picture
-            gray = cv2.cvtColor(candidate, cv2.COLOR_BGR2GRAY)
-            shape, bb, raw_shape = coreApplication.detect_face(gray)
+            shape, bb, raw_shape = coreApplication.detect_face(candidate)
             data["Face Candidate Detected"] = True
             if bb is None:
                 #logger.info("no face")
