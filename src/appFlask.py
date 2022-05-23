@@ -99,7 +99,7 @@ def upload_image():
             else:
                 #logger.info("face detected")
                 image, shape = coreApplication.rotate(candidate, shape)
-                roi = coreApplication.cropping(image, shape,data)
+                roi = coreApplication.cropping(image, shape)
                 data["Cropping"] = True
                 if roi is None:
                     #logger.info("no cropping")
