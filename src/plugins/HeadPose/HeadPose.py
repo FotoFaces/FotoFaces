@@ -22,7 +22,7 @@ class HeadPose(PluginCore):
 
     def invoke(self, args):
 
-        im = args["image"]
+        im = args["final_img"]
         features = args["shape"]
 
         size = im.shape
