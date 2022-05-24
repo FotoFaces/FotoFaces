@@ -77,7 +77,7 @@ def upload_image():
         app.logger.info(f"Identifier {identifier} requested updated with candidate photo {candidate[:30]}")
         data = {}
         data["Colored Picture"] = coreApplication.is_gray(candidate)
-        if data["Colored Picture"] == False:
+        if data["Colored Picture"] == "false":
             #logger.info("no colored picture")
 
             dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
@@ -87,37 +87,34 @@ def upload_image():
             #logger.info("colored picture")
             # reads the candidate picture
             shape, bb, raw_shape = coreApplication.detect_face(candidate)
-            data["Face Candidate Detected"] = True
+            data["Face Candidate Detected"] = "true"
             if bb is None:
                 #logger.info("no face")
                 # No face detected
-                data["Face Candidate Detected"] = False
+                data["Face Candidate Detected"] = "false"
                 dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
                 app.logger.info(dict_data)
                 return dict_data
             else:
                 #logger.info("face detected")
                 image, shape = coreApplication.rotate(candidate, shape)
-                roi = coreApplication.cropping(image, shape,data)
-                data["Cropping"] = True
+                roi, crop_pos  = coreApplication.cropping(image, shape)
+                data["Cropping"] = "true"
                 if roi is None:
                     #logger.info("no cropping")
                     # Face is not centered and/or too close to the camera
-                    data["Cropping"] = False
+                    data["Cropping"] = "false"
                     dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
                     app.logger.info(dict_data)
                     return dict_data
                 else:
                     #logger.info("cropping")
+                    data["Crop Position"] = crop_pos
                     data["Resize"] = 500 / roi.shape[0]
                     final_img = cv2.resize(roi, (500, 500))
                     # start plugins
-
-                    # old method
-                    # img2 = request.form["reference"]
-                    # app.logger.info(f"image reference {img2}")
-
-                    # new method with kafka
+                    _, img_encoded = cv2.imencode(".jpg", final_img)
+                    app.logger.info(f"Img Encoded {img_encoded[:30]}")
 
                     response = requests.get(f'http://api:8393/image/{identifier_decoded}')
                     response_json = response.json()
@@ -144,8 +141,11 @@ def upload_image():
                     __print_plugins_end()
                     app.logger.info(data)
 
+                    cropped = base64.b64encode(img_encoded).decode("ascii")
+                    app.logger.info(f"Img Encoded {cropped[:10]}")
                     #logger.info(data)
-                    return data
+                    dict_data = {'id':identifier_decoded, 'feedback':json.dumps(data),'cropped' : cropped }
+                    return dict_data
     return "", 204
 
 

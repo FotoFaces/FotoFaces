@@ -39,7 +39,7 @@ class Glasses(PluginCore):
         edges = cv2.Canny(image =img_blur, threshold1=100, threshold2=200)
         edges_center = edges.T[(int(len(edges.T)/2))]
 
-        has_glasses = False
+        has_glasses = "false"
         if 255 in edges_center:
-            has_glasses = True
+            has_glasses = "true"
         return ("Glasses", has_glasses)
