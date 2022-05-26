@@ -3,9 +3,12 @@ import math
 import numpy as np
 import sys
 import dlib
+import keras
+from keras.models import model_from_json
+import tensorflow as tf
 
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor("../../../shape_predictor_68_face_landmarks.dat")
 
 def bb_area( bb):
         return (bb[0] + bb[2]) * (bb[1] + bb[3])
@@ -57,6 +60,7 @@ def detect_face(image):
 def detect_hats(image, shape):
 	
 	roi_cropp = cropping_hats(image, shape)
+	#print("roi_cropp",roi_cropp)
 	img_size = 150
 	resized_arr = cv2.resize(roi_cropp, (img_size, img_size)) # Reshaping images to preferred size
 	resized_arr = cv2.cvtColor(resized_arr, cv2.COLOR_RGB2BGR)
@@ -120,18 +124,20 @@ def cropping_hats(image, shape):
 def func(path_img, expect):
     image = cv2.imread(path_img)
     shape = detect_face(image)[0]
-
-    return detect_sunglasses(image,shape) == expect
+    
+    return detect_hats(image,shape) == expect
 
 def test_person_with_no_hat():
-    assert func( "images/hat_person_no.jpg", True)
+    assert func( "images/hat_person_no.jpg", False)
 
 def test_person_with_campaign_hat():
-    assert func( "images/hat_person_1.jpg", False)
-def test_person_with_baseball_hat():
-    assert func("images/hat_person_2.jpg",False)
+    assert func( "images/hat_person_1.jpg", True)
+def test_person_with_hat_showing_forehead():
+    assert func("images/hat_person_2.jpg",True)
 def test_person_with_bobble_hat():
-    assert func("images/hat_person_3.jpg",False)
+    assert func("images/hat_person_3.jpg",True)
 def test_person_with_large_chupalla_hat():
-    assert func("images/hat_person_4.jpg",False)
+    assert func("images/hat_person_4.jpg",True)
+def test_person_with_baseball_hat():
+    assert func("images/hat_person_5.jpg",True)
 
