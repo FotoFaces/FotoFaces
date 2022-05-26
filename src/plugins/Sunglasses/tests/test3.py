@@ -169,16 +169,22 @@ def func(path_img, expect):
 
     return detect_sunglasses(image,shape) == expect
 
-def test_func():
+def test_person():
     assert func( "images/bright_mini_1.jpg", False)
-
+def test_person_with_glasses():
     assert func("images/bright_vicente_1.jpg",False)
-
+def test_person_with_Sunglasses_no_visible_eyes():
     assert func("images/sunglasses_1.jpg",True)
+def test_person_light_yellow_Sunglasses_visible_eyes():
     assert func("images/sunglasses_2.jpg",True)
+def test_black_person_Sunglasses_slight_visible_eyes():
     assert func("images/sunglasses_3.jpg",True)
+def test_person_Pink_Sunglasses_slight_visible_eyes():
     assert func("images/sunglasses_4.jpg",True)
+def test_person_Red_Sunglasses_slight_visible_eyes():
     assert func("images/sunglasses_5.jpg",True)
+def test_person_yellow_Sunglasses_no_visible_eyes_with_reflexition():
     assert func("images/sunglasses_6.jpg",True)
+def test_person_Sunglasses_visible_eyes():
     assert func("images/sunglasses_7.jpg",True)
 
