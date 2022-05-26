@@ -4,9 +4,9 @@ import numpy as np
 import sys
 import dlib
 
-net = cv2.dnn.readNet("deploy.prototxt", "hed_pretrained_bsds.caffemodel")
+net = cv2.dnn.readNet("../deploy.prototxt", "../hed_pretrained_bsds.caffemodel")
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor("../../../shape_predictor_68_face_landmarks.dat")
 
 def bb_area(bb):
     return (bb[0] + bb[2]) * (bb[1] + bb[3])

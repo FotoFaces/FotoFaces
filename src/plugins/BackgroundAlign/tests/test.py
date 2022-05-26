@@ -5,7 +5,7 @@ import sys
 import dlib
 
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor("../../../shape_predictor_68_face_landmarks.dat")
 
 def check_the_line(slope, limit):
     if ( 0 < slope <= limit) or (360 - limit <= slope <= 360) or (180 - limit <= slope < 180 + limit):
