@@ -70,5 +70,21 @@ def cropping_hats(image, shape):
         return None
 
 
+def func(path_img, expect):
+    image = cv2.imread(path_img)
+    shape = detect_face(image)[0]
 
+    return detect_sunglasses(image,shape) == expect
+
+def test_person_with_no_hat():
+    assert func( "images/hat_person_no.jpg", True)
+
+def test_person_with_campaign_hat():
+    assert func( "images/hat_person_1.jpg", False)
+def test_person_with_baseball_hat():
+    assert func("images/hat_person_2.jpg",False)
+def test_person_with_bobble_hat():
+    assert func("images/hat_person_3.jpg",False)
+def test_person_with_large_chupalla_hat():
+    assert func("images/hat_person_4.jpg",False)
 
