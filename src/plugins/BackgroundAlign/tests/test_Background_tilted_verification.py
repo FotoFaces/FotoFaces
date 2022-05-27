@@ -316,7 +316,9 @@ def test_background_very_slightly():
      assert func("images/Background_2.png",False)
 def test_img_no_rotated3():
      assert func("images/Open_eyes_3.jpg",True)
+def test_img_no_rotated3():
+     assert func("images/tilt_me.jpg",True)
 
 
 #test_img_no_rotated3()
-test_background_slightly_cursed()
+#test_background_slightly_cursed()

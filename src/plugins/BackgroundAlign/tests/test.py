@@ -281,8 +281,8 @@ def background_tilt(candidate):
 			out = out.astype(np.uint8)
 			out=cv2.cvtColor(out,cv2.COLOR_GRAY2BGR)
 			con=np.concatenate((final_img,out),axis=1)
-			#cv2.imshow("final_img", final_img)
-			#cv2.waitKey(0)
+			cv2.imshow("final_img", final_img)
+			cv2.waitKey(0)
 			#cv2.imshow("out", out)
 			#cv2.waitKey(0)
 			
@@ -314,6 +314,5 @@ def test_background_very_slightly():
      assert func("images/Background_2.jpg",False)
 def test_img_no_rotated3():
      assert func("images/Open_eyes_3.jpg",False)
-
-
-#test_img_no_rotated3()
+def test_img_no_rotated3():
+    assert func("images/tilt_me.jpg",False)
