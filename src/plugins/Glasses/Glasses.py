@@ -21,7 +21,7 @@ class Glasses(PluginCore):
     def invoke(self, args):
 
         shape = args["shape"]
-        image = args["image"]
+        image = args["final_img"]
 
         nose_bridge_x = []
         nose_bridge_y = []

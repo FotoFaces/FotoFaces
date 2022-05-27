@@ -86,8 +86,7 @@ def upload_image():
         else:
             #logger.info("colored picture")
             # reads the candidate picture
-            gray = cv2.cvtColor(candidate, cv2.COLOR_BGR2GRAY)
-            shape, bb, raw_shape = coreApplication.detect_face(gray)
+            shape, bb, raw_shape = coreApplication.detect_face(candidate)
             data["Face Candidate Detected"] = "true"
             if bb is None:
                 #logger.info("no face")
@@ -98,8 +97,9 @@ def upload_image():
                 return dict_data
             else:
                 #logger.info("face detected")
-                image, shape = coreApplication.rotate(candidate, shape)
-                roi, crop_pos  = coreApplication.cropping(image, shape)
+                #image, shape = coreApplication.rotate(candidate, shape)
+                #roi, crop_pos  = coreApplication.cropping(image, shape)
+                roi, crop_pos  = coreApplication.cropping(candidate, shape)
                 data["Cropping"] = "true"
                 if roi is None:
                     #logger.info("no cropping")

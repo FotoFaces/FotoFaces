@@ -22,7 +22,7 @@ class Brightness(PluginCore):
 
     def invoke(self, args):
 
-        roi = args["candidate"]
+        roi = args["final_img"]
         shape = args["shape"]
         cropped_image, _ = self.appCore.cropping(roi,shape,self.CROP_ALPHA)
         if cropped_image is None:
