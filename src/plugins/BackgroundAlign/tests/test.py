@@ -4,15 +4,9 @@ import numpy as np
 import sys
 import dlib
 
+net = cv2.dnn.readNet("../deploy.prototxt", "../hed_pretrained_bsds.caffemodel")
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("../../../shape_predictor_68_face_landmarks.dat")
-
-def check_the_line(slope, limit):
-    if ( 0 < slope <= limit) or (360 - limit <= slope <= 360) or (180 - limit <= slope < 180 + limit):
-        return "h"
-    elif (90 - limit < slope < 90 + limit) or (270 - limit < slope < 270 + limit):
-        return "v"
-    return "o"
 
 def bb_area(bb):
     return (bb[0] + bb[2]) * (bb[1] + bb[3])
@@ -34,7 +28,7 @@ def rect_to_bb(rect):
     h = rect.bottom() - y
     return [x, y, w, h]
 
-# Detects faces and only returns the largest bounding box
+
 def detect_face(image):
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     rects = detector(gray_image, 1)
@@ -61,111 +55,265 @@ def detect_face(image):
     return max_shape, max_bb, raw_shape
 
 def rotate(image, shape):
-    dY = shape[36][1] - shape[45][1]
-    dX = shape[36][0] - shape[45][0]
-    angle = np.degrees(np.arctan2(dY, dX)) - 180
+	dY = shape[36][1] - shape[45][1]
+	dX = shape[36][0] - shape[45][0]
+	angle = np.degrees(np.arctan2(dY, dX)) - 180
 
-    rows, cols = image.shape[:2]
-    M = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1)
-    dst = cv2.warpAffine(image, M, (cols, rows), borderMode=cv2.BORDER_REFLECT)
+	rows,cols = image.shape[:2]
+	M = cv2.getRotationMatrix2D((cols/2,rows/2),angle,1)
+	dst = cv2.warpAffine(image,M,(cols,rows), borderMode=cv2.BORDER_REFLECT)
 
-    # transform points
-    ones = np.ones(shape=(len(shape), 1))
-    points_ones = np.hstack([shape, ones])
-    new_shape = M.dot(points_ones.T).T
-    new_shape = new_shape.astype(int)
+	#transform points
+	ones = np.ones(shape=(len(shape), 1))
+	points_ones = np.hstack([shape, ones])
+	new_shape  = M.dot(points_ones.T).T
+	new_shape = new_shape.astype(int)
 
-    return dst, new_shape
+	return dst, new_shape 
+
+def find_lines_using_hough_lines_P(img_edges):
+    
+	img_edges = cv2.cvtColor(img_edges, cv2.COLOR_BGR2GRAY)
+	lines = cv2.HoughLinesP(img_edges, 1, math.pi / 180.0, 100, minLineLength=130, maxLineGap=5)
+
+	return lines
+
+def calculate_angle_P(lines, img_before):
+	angles = []
+	#print('Lines:', lines)
+	for i in range(0,len(lines)):
+		for x1,y1,x2,y2 in lines[i]:
+   
+			cv2.line(img_before,(x1,y1),(x2,y2),(0,255,0),2)
+			angle = math.degrees(math.atan2(y2 - y1, x2 - x1))  # find angle of line connecting (0,0) to (x,y) from +ve x axis
+	#		print('Tilt angle for x1, y1, x2, y2 {} is {}'.format([x1, y1, x2, y2], angle) )
+			angles.append(angle)
+
+	median_angle = np.median(angles)
+	#print('median_angle:', median_angle)
+
+	return median_angle
+
+def rotate_degree(image, degree):
+	
+	angle = degree
+
+	rows,cols = image.shape[:2]
+	M = cv2.getRotationMatrix2D((cols/2,rows/2),angle,1)
+	dst = cv2.warpAffine(image,M,(cols,rows), borderMode=cv2.BORDER_REFLECT)
+
+	return dst
+
+
+def foresty_lines(img_edges):
+	print("foresty_lines")
+	#global angle_array
+
+	angle = 1000
+
+	Bigsum = 0
+	forangle = 0
+
+	#Usaar a altura da imagem para definir o treshold da linha, neste caso é considerado uma linha se tiver mais de 1/5 dos pixeis do tamanho da altura da imagem
+	img_height = img_edges.shape[0]
+
+	threshold = img_height/5
+	#threshold = 100 # se a linhar tiver mais de x pixeis então é aceite
+
+	for angle in range(-90, 90):
+		#print("angle", angle)
+		#chamar a funcao de rotate já implementada mas
+		new_img = rotate_degree(img_edges, angle)
+
+		img_edges_gray = cv2.cvtColor(new_img, cv2.COLOR_BGR2GRAY)
+
+		(thresh, im_bw) = cv2.threshold(img_edges_gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+		bestlinesum = 0
+
+		line = 0    #numero de pontos de uma linha 
+		limit = 10  #numero de pixeis de espaçamento para se considerar uma linha 
+		#print("im_bw", shape[1])
+		#print("im_bw", shape[0])
+		for column in range (0, im_bw.shape[1]):
+
+			exit = limit 
+
+			for row in range(0,im_bw.shape[0]):
+
+				pixel = im_bw[row, column]
+
+				if pixel == 0:   #black pixel 
+					exit = exit -1 
+					line = line -1 
+				elif pixel == 255 :
+					line = line + 1 
+					exit = limit 
+
+				if exit <= 0:
+					if line > threshold:
+						bestlinesum = bestlinesum + line
+                    
+					line = 0
+                
+				if row == (im_bw.shape[0] -1) :
+					if line > threshold:
+						bestlinesum = bestlinesum + line 
+
+		if bestlinesum > Bigsum:
+			Bigsum = bestlinesum
+			forangle = angle 
+
+	return forangle
 
 
 
-image = cv2.imread(sys.argv[1])
-shape = detect_face(image)[0]
+def background_rotation(image, shape, img_edges):
 
-image, shape = rotate(image, shape)
+	#global x 
 
-cv2.imshow("rotate", cv2.resize(image, (500, 500)))		#ver a imagem auxiliar com as linhas verticais e horizontais 
-cv2.waitKey(0)
+	back = -1
 
-image = cv2.GaussianBlur(image, (3, 3), 0)
+	#Excluir a região da face da imagem para ficar apenas com o background 
+	AUX = 0.95
 
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+	aux = shape[0] - shape[16]
+	distance = np.linalg.norm(aux)
+	h = int(distance)
 
-edges = cv2.Canny(gray,219,220)
+	middle_X = int((shape[0][0] + shape[16][0])/2)
+	middle_Y = int((shape[19][1] + shape[29][1])/2)
 
-#HOUGH LINE TRANSFORM OPENCV 
+	x1 = int((shape[0][0])) - int(0.2*h)
+	y1 = int(middle_Y-h*AUX)
+	x2 = int((shape[16][0])) + int(0.2*h)
+	y2 = int((shape[57][1]))
 
-#		---Probabilistic Hough Line---
-#img = image 
-#minLineLength = 100
-#maxLineGap = 1
-#lines = cv2.HoughLinesP(edges,1,np.pi/180,100,minLineLength,maxLineGap)
+	#Excluir a região abaixo da linha da boca 
+	x1_1 = int(0)
+	y1_1 = int((shape[57][1]))
+	x2_1 = int(image.shape[1])
+	y2_1 = int(image.shape[0])
+	
+	image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  #convert BGR to RGB
+	#display_image(image)
+	image_blur = cv2.GaussianBlur(image, (5, 5), 0)
 
-#print("Linhas:")
-#print(lines[0])
+	gray = cv2.cvtColor(image_blur, cv2.COLOR_RGB2GRAY)
 
-#for i in range(0,len(lines)):
-#	for x1,y1,x2,y2 in lines[i]:
-#		cv2.line(img,(x1,y1),(x2,y2),(0,255,0),2)
+	#cv2.rectangle(img_edges, (x1,y1), (x2,y2), (0, 0, 0), -1)
+	#cv2.rectangle(img_edges, (x1_1,y1_1), (x2_1,y2_1), (0, 0, 0), -1)
+	#cv2.imshow("img_edges", img_edges)
+	#cv2.waitKey(0)
+	img_edges_new = img_edges
+	lines_P = find_lines_using_hough_lines_P(img_edges_new)
+	#print(lines_P)
+	if lines_P is not None:
+		img_before = image
+		#median_angle = calculate_angle(lines, img_before)
+		median_angle_P = round(calculate_angle_P(lines_P, img_before))
+		#print("Median Angle: ", median_angle)
+		print("Median Angle Prob: ", median_angle_P)
 
-#cv2.imshow("Hough Line Transform", img)
+		if -5 <= median_angle_P <= 5 or 85 <= median_angle_P <= 90 or -90 <= median_angle_P <= -85:
+			back = 1	#Background direito se a média dos ângulos estiver entre estes valores 
+		else:
+			back = 0
+		
+	else:
+		back = 1	#Background direito se não forem detetadas linhas
+
+	#print(back)
+
+	#img_angle = foresty_lines(img_edges)
+
+	#if -5 <= img_angle <= 5 or 85 <= img_angle <= 90 or -90 <= img_angle <= -85:
+	#	back = 1	#Background direito se a média dos ângulos estiver entre estes valores 
+	#else:
+	#	back = 0
+
+	#cv2.imshow("end", img_edges_new)
+	#cv2.waitKey(0)
+
+	return back 
 
 
-#		---"Normal" Hough Line---
-#lines = cv2.HoughLines(edges,1,np.pi/180,120)
-lines = cv2.HoughLines(edges, 1, np.pi / 180, 75, None, 0, 0)
+def background_tilt(candidate):
+	img_width = candidate.shape[1]
+	img_height = candidate.shape[0]
 
-#print("Linhas:")
-#print(len(lines))
+	if img_width <= 1000 or  img_height <= 1000:
+		scale_factor = 1
+	if 1000 < img_width <= 2000 or 1000 < img_height <= 2000:
+		scale_factor = 2
+	if img_width > 2000 or img_height > 2000:
+		scale_factor = 3
 
-if len(lines) > 0:
-    n_lines = len(lines)	#numero de linhas detetadas
-    n_horizontal = 0
-    n_vertical = 0
-    n_rest = 0
+	candidate = cv2.resize(candidate, (int(img_width/scale_factor),int(img_height/scale_factor)))
 
-    aux_image = image
+	shape_0, bb, raw_shape = detect_face(candidate)
 
-    for i in range(0,len(lines)):
-        for rho,theta in lines[i]:
-            a = np.cos(theta)
-            b = np.sin(theta)
-            x0 = a*rho
-            y0 = b*rho
-            x1 = int(x0 + 1000*(-b))
-            y1 = int(y0 + 1000*(a))
-            x2 = int(x0 - 1000*(-b))
-            y2 = int(y0 - 1000*(a))
+	background = -1
+		
+	if shape_0 is not None:	
+		if bb is None:
+			print("No face Detected!")
+		else:
+			print("Face Detected!")
 
-            #cv2.line(image,(x1,y1),(x2,y2),(0,0,255),2)
-            if y1 != 0 and y2 != 0 and x1 != 0 and x2 != 0 and (y1 - y2) != 0 and (x1 - x2) != 0:
-                slope_as_angle = math.atan((y1 - y2) / (x1 - x2))
-                slope_as_angle = math.degrees(math.atan2((y1 - y2), (x1 - x2)))
+		final_img, final_shape = rotate(candidate, shape_0)	#Face Alignment 
 
-                #print("Slope in degrees: ", slope_as_angle)
-                #print("----------------------")
+		if final_shape is not None:
 
-                limit = 10		# dez graus de liberdade para dizer que a linha é horizontal
+			#cv2.imshow("Paco Image", final_img)
 
-                if check_the_line(slope_as_angle, limit=limit) == "h":
-                    n_horizontal = n_horizontal + 1
-                    cv2.line(aux_image,(x1,y1),(x2,y2),(0,255,0),2)		#pintar as linahas horizontais 
-                elif check_the_line(slope_as_angle, limit=limit) == "v":
-                    n_vertical = n_vertical + 1
-                    cv2.line(aux_image,(x1,y1),(x2,y2),(255,0,0),2)		#pintar as linhas verticais 
-                else:
-                    n_rest = n_rest + 1
-                    cv2.line(aux_image,(x1,y1),(x2,y2),(0,0,255),2)		#pintar as linhas verticais 
+			#print("Image Face Shape: ", final_shape)
 
-    print("Horizontal lines number:", n_horizontal)
-    print("Vertical lines number:", n_vertical)
-    print("Rest lines number:", n_rest)
+			inp = cv2.dnn.blobFromImage(final_img, scalefactor=1.0, size=(500, 500),
+							mean=(104.00698793, 116.66876762, 122.67891434),
+							swapRB=False, crop=False)
+			
+			net.setInput(inp)
+			out = net.forward()
+			out = out[0, 0]
+			out = cv2.resize(out, (final_img.shape[1], final_img.shape[0]))
+			out = 255 * out
+			out = out.astype(np.uint8)
+			out=cv2.cvtColor(out,cv2.COLOR_GRAY2BGR)
+			con=np.concatenate((final_img,out),axis=1)
+			#cv2.imshow("final_img", final_img)
+			#cv2.waitKey(0)
+			#cv2.imshow("out", out)
+			#cv2.waitKey(0)
+			
+			#cv2.destroyAllWindows()
 
-    cv2.imshow("Hough Line", cv2.resize(aux_image, (500, 500)))		#ver a imagem auxiliar com as linhas verticais e horizontais 
-    cv2.waitKey(0)
+			background = background_rotation(final_img, final_shape, out)
 
-if (n_vertical > n_rest) or (n_horizontal > n_rest) or (n_horizontal + n_vertical > n_rest): 
-    print("Good Background")
-else:
-    print("Tilted Background")
+	if background == 1:
+		return True
+	elif background == 0:
+		return False
+	else:
+		return False
 
+
+
+
+def func(path_img, expect):
+    image = cv2.imread(path_img)
+    return background_tilt(image) == expect
+
+def test_background_cursed():
+    assert func( "images/rotate1.jpg", False)
+def test_background_cursed2():
+     assert func("images/rotate2.jpg",False)
+def test_background_slightly_cursed():
+     assert func("images/bright_vicente_1.jpg",False)
+def test_background_very_slightly():
+     assert func("images/Background_2.jpg",False)
+def test_img_no_rotated3():
+     assert func("images/Open_eyes_3.jpg",False)
+
+
+#test_img_no_rotated3()
