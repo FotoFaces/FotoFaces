@@ -17,65 +17,52 @@ class HatDetection(PluginCore):
         )
         self.appCore = appCore
         self.net = cv2.dnn.readNet("deploy.prototxt", "hed_pretrained_bsds.caffemodel")
+    # Detects sunglasses using  Machine Learning trained model
 
     def invoke(self, args):
 
         candidate = args["final_img"]
         shape = args["shape"]
+        
+        roi_cropp = cropping_hats(candidate, shape)
+        #print("roi_cropp",roi_cropp)
+        img_size = 150
+        resized_arr = cv2.resize(roi_cropp, (img_size, img_size)) # Reshaping images to preferred size
+        resized_arr = cv2.cvtColor(resized_arr, cv2.COLOR_RGB2BGR)
 
-        img_width = candidate.shape[1]
-        img_height = candidate.shape[0]
+        x_test = []
+        x_test.append(resized_arr)
+        x_test = np.array(x_test)
+        x_test = (x_test / 127.5 ) - 1
 
-        if img_width <= 1000 or  img_height <= 1000:
-            scale_factor = 1
-        if 1000 < img_width <= 2000 or 1000 < img_height <= 2000:
-            scale_factor = 2
-        if img_width > 2000 or img_height > 2000:
-            scale_factor = 3
+        # load json and create model
+        json_file = open('../model_tf_hats_head_cropp_hand_final.json', 'r')
+        loaded_model_json = json_file.read()
+        json_file.close()
+        loaded_model = model_from_json(loaded_model_json)
+        # load weights into new model
+        loaded_model.load_weights("../model_tf_hats_head_cropp_hand_final.h5")
+        print("Loaded model from disk")
 
-        candidate = cv2.resize(candidate, (int(img_width/scale_factor),int(img_height/scale_factor)))
+        # evaluate loaded model on test data
+        loaded_model.compile(optimizer=tf.keras.optimizers.Adam(1e-5),  # Very low learning rate
+                    loss=keras.losses.BinaryCrossentropy(from_logits=True),
+                    metrics=[keras.metrics.BinaryAccuracy()])
 
+        predictions = (loaded_model.predict(np.array(x_test)) > 0.5).astype("int32")
 
-        background = -1
-            
+        #print("Prediction Hats: ", predictions[0])
 
-        final_img, final_shape = self.appCore.rotate(candidate, shape)	#Face Alignment 
+        if predictions[0] == 1:
+            return ('Hats' , True)
 
-        if final_shape is not None:
-
-            #cv2.imshow("Paco Image", final_img)
-
-            #print("Image Face Shape: ", final_shape)
-
-            inp = cv2.dnn.blobFromImage(final_img, scalefactor=1.0, size=(500, 500),
-                            mean=(104.00698793, 116.66876762, 122.67891434),
-                            swapRB=False, crop=False)
-            
-            self.net.setInput(inp)
-            out = self.net.forward()
-            out = out[0, 0]
-            out = cv2.resize(out, (final_img.shape[1], final_img.shape[0]))
-            out = 255 * out
-            out = out.astype(np.uint8)
-            out=cv2.cvtColor(out,cv2.COLOR_GRAY2BGR)
-            con=np.concatenate((final_img,out),axis=1)
-
-            background = background_rotation(final_img, final_shape, out)
-
-            if background == 1: 
-                return ("BackgroundAlign", final_img)
-            else:
-                return ("BackgroundAlign", None)
+        return ('Hats' , False)
 
 
-    def background_rotation(image, shape, img_edges):
+    # Crops the image into the head reagion to give as input to the hats trained model 
+    def cropping_hats(image, shape):
 
-        #global x 
-
-        back = -1
-
-        #Excluir a região da face da imagem para ficar apenas com o background 
-        AUX = 0.95
+        CROP_ALPHA = 0.75
 
         aux = shape[0] - shape[16]
         distance = np.linalg.norm(aux)
@@ -84,59 +71,16 @@ class HatDetection(PluginCore):
         middle_X = int((shape[0][0] + shape[16][0])/2)
         middle_Y = int((shape[19][1] + shape[29][1])/2)
 
-        x1 = int((shape[0][0])) - int(0.2*h)
-        y1 = int(middle_Y-h*AUX)
-        x2 = int((shape[16][0])) + int(0.2*h)
-        y2 = int((shape[57][1]))
+        x1 = int((shape[0][0]))
+        y1 = int(middle_Y-h*CROP_ALPHA)
+        x2 = int((shape[16][0]))
+        y2 = int((shape[19][1]))
+        tl = (x1, y1)
+        br = (x2, y2)
 
-        #Excluir a região abaixo da linha da boca 
-        x1_1 = int(0)
-        y1_1 = int((shape[57][1]))
-        x2_1 = int(image.shape[1])
-        y2_1 = int(image.shape[0])
-        
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  #convert BGR to RGB
-        image_blur = cv2.GaussianBlur(image, (5, 5), 0)
+        if x1 >= 0 and y1 >= 0 and x2 < image.shape[1] and y2 < image.shape[0]:
+            roi = image[tl[1]:br[1],tl[0]:br[0]]
+            return roi
 
-        gray = cv2.cvtColor(image_blur, cv2.COLOR_RGB2GRAY)
-
-
-        img_edges_new = img_edges
-        lines_P = find_lines_using_hough_lines_P(img_edges_new)
-
-        if lines_P is not None:
-            img_before = image
-            median_angle_P = calculate_angle_P(lines_P, img_before)
-
-            if -5 <= median_angle_P <= 5 or 85 <= median_angle_P <= 90 or -90 <= median_angle_P <= -85:
-                back = 1	#Background direito se a média dos ângulos estiver entre estes valores 
-            else:
-                back = 0
-            
-        else:
-            back = 1	#Background direito se não forem detetadas linhas
-
-        return back 
-
-    def find_lines_using_hough_lines_P(img_edges):
-    
-        img_edges = cv2.cvtColor(img_edges, cv2.COLOR_BGR2GRAY)
-        lines = cv2.HoughLinesP(img_edges, 1, math.pi / 180.0, 100, minLineLength=130, maxLineGap=5)
-
-        return lines
-
-    def calculate_angle_P(lines, img_before):
-        angles = []
-        for i in range(0,len(lines)):
-            for x1,y1,x2,y2 in lines[i]:
-    
-                angle = math.degrees(math.atan2(y2 - y1, x2 - x1))  # find angle of line connecting (0,0) to (x,y) from +ve x axis
-                angles.append(angle)
-
-        median_angle = np.median(angles)
-        return median_angle
-
-
-
-
-
+        else: 
+            return None
