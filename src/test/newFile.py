@@ -10,7 +10,7 @@ import cv2
 import requests
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-api = 'http://127.0.0.1:5000/'
+api = 'http://192.168.33.46:5000/'
 reference = sys.argv[1]
 candidate = sys.argv[2]
 
