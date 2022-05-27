@@ -75,7 +75,7 @@ class Sunglasses(PluginCore):
         if S_diff < 90 and V_diff < 90:
             return ("Sunglasses", detect_sunglassesNew(image, shape))
         else :
-            return ("Sunglasses", True)
+            return ("Sunglasses", "true")
         #return ("Sunglasses", [S_diff, V_diff])
 
     def cropping_eye(image, shape):
@@ -125,6 +125,6 @@ class Sunglasses(PluginCore):
         print("Prediction Sunglasses: ", predictions[0])
 
         if predictions[0] == 1:
-            return True
+            return "true"
 
-        return False
+        return "false"
