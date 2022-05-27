@@ -54,9 +54,9 @@ class HatDetection(PluginCore):
         #print("Prediction Hats: ", predictions[0])
 
         if predictions[0] == 1:
-            return ('Hats' , True)
+            return ('Hats' , "true")
 
-        return ('Hats' , False)
+        return ('Hats' , "false")
 
 
     # Crops the image into the head reagion to give as input to the hats trained model 
