@@ -38,10 +38,11 @@ class PluginEngine:
         print(self.use_case.modules)
         for module in self.use_case.modules:
             plugin = self.use_case.register_plugin(module, self._logger, self._coreApplication)
+            print(plugin)
             delegate = self.use_case.hook_plugin(plugin) # callable invoke of the curren plugin
-
             # plugin_resp should be a tuple or a list composed of (key, value)
             plugin_resp = delegate(args) # invoke(args)
+            print(plugin_resp)
             if isinstance(plugin_resp, list):
                 for tpl in plugin_resp:
                     dict_feedback[tpl[0]] = tpl[1]

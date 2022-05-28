@@ -8,11 +8,11 @@ logging:
   # Setting the log level: CRITICAL, ERROR, WARNING, INFO, DEBUG
   level: 'DEBUG'
 plugins:
-  # Packages to download from registry
+  - Brightness
+  - EyesOpen
   - FaceRecognition
   - Gaze
-  - Brightness
-  - ImageQuality
-  - EyesOpen
-  - Sunglasses
+  - Glasses
   - HeadPose
+  - ImageQuality
+  - Sunglasses

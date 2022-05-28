@@ -21,3 +21,5 @@ Old FotoFaces > Face_recognition (n reconhece as vezes)
 
 <h3>Choice: <br>Old FotoFaces<br></h3> 
 <h3>Use: <br>FotoFaces 2.0 (refactor)<br></h3> 
+
+Tolerance > 0.6

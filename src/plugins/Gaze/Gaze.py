@@ -30,7 +30,7 @@ class GazePlugin(PluginCore):
 
 
     def invoke(self, args):
-        image = args["image"]
+        image = args["final_img"]
         shape = args["shape"]
 
         ratio = []

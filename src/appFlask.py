@@ -1,6 +1,8 @@
 from flask import request, Flask
 from engine import PluginEngine
 from util import FileSystem
+import requests
+#import logging
 
 import numpy as np
 import cv2
@@ -18,13 +20,17 @@ import sys
 from random import choice
 from argparse import ArgumentParser, FileType
 from configparser import ConfigParser
-from confluent_kafka import Producer, Consumer, OFFSET_BEGINNING
 
 
 app = Flask(__name__)
 coreApplication = appCore.ApplicationCore()
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
+
+#logging.basicConfig(filename = "logs/logfile.log",
+#                    filemode = "w")
+
+#logger = logging.getLogger()
 
 """
 Reads two input images and an identifier:
@@ -34,28 +40,15 @@ Reads two input images and an identifier:
 Outputs a dictionary with the cropped image (depending on some requirements), metrics and the same identifier.
 """
 
-# kafka implementation
-# Topic for producing messages
-TOPIC_PRODUCE = "image"
-# Topic for consuming messages
-TOPIC_CONSUME = "rev_image"
-
-# Set up a callback to handle the '--reset' flag.
-def reset_offset(consumer, partitions):
-    if ARGS.reset:
-        for p in partitions:
-            p.offset = OFFSET_BEGINNING
-        consumer.assign(partitions)
-
 
 # Cropping threshold (for higher values the cropping might be bigger than the image itself
 # which will make the app consider that the face is out of bounds)
-CROP_ALPHA = 0.95
+#CROP_ALPHA = 0.95
 
 # loads everything needed
-detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
-facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
+#detector = dlib.get_frontal_face_detector()
+#predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+#facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
 
 
 @app.route("/hello", methods=["POST"])
@@ -70,8 +63,10 @@ def someOther():
 @app.route("/", methods=["POST"])
 @cross_origin()
 def upload_image():
-    app.logger.info("recieved")
-    if True:
+    #logger.info("update")
+    if "candidate" in request.form.keys() and "id" in request.form.keys():
+        #logger.info("first if")
+
         candidate = request.form["candidate"]
         identifier = request.form["id"]
         identifier_decoded = identifier
@@ -79,104 +74,66 @@ def upload_image():
             np.frombuffer(base64.b64decode(candidate), np.uint8), cv2.IMREAD_COLOR
         )
 
-        # Kafka Implementation to message deal with the REST API
-
-        # Parse the configuration.
-        # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
-        config_parser.read_file(ARGS.config_file)
-        config = dict(config_parser["default"])
-
-        # Create Producer instance
-        producer = Producer(config)
-
-        # Create Consumer instance
-        config.update(config_parser["consumer"])
-        consumer = Consumer(config)
-
-        consumer.subscribe([TOPIC_CONSUME], on_assign=reset_offset)
-
-        # GET photo from the database
-        # produce a json message to send to the consumer
-        producer.produce(
-            TOPIC_PRODUCE, json.dumps({"command": "get_photo", "id": identifier})
-        )
-        producer.flush()
-        app.logger.info('SENT: {"command": "get_photo", "id": ' + identifier + "}")
-
-        # Poll for new messages from Kafka and save the json object
-        msg_json = None
-        try:
-            while True:
-                app.logger.info("here")
-                msg = consumer.poll(1.0)
-                if msg is None:
-                    app.logger.info("None")
-                    pass
-                elif msg.error():
-                    app.logger.info(f"ERROR Recieving GET from the Database: {msg.error()}")
-                else:
-                    msg_json = json.loads(msg.value().decode("utf-8"))
-                    app.logger.info(f"Consumed event from topic {TOPIC_CONSUME}")
-                    break
-        except KeyboardInterrupt:
-            return False
-
-        # idk why it needs this but it doesn't work without it
-        msg_json = json.loads(msg_json)
-        # old photo from the database
-        old_photo = msg_json["photo"]
-        app.logger.info(msg_json)
-
+        app.logger.info(f"Identifier {identifier} requested updated with candidate photo {candidate[:30]}")
         data = {}
         data["Colored Picture"] = coreApplication.is_gray(candidate)
-        if data["Colored Picture"] == False:
+        if data["Colored Picture"] == "false":
+            #logger.info("no colored picture")
+
             dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
             app.logger.info(dict_data)
             return dict_data
         else:
+            #logger.info("colored picture")
             # reads the candidate picture
-            gray = cv2.cvtColor(candidate, cv2.COLOR_BGR2GRAY)
-            shape, bb, raw_shape = coreApplication.detect_face(gray)
-            data["Face Candidate Detected"] = True
+            shape, bb, raw_shape = coreApplication.detect_face(candidate)
+            data["Face Candidate Detected"] = "true"
             if bb is None:
+                #logger.info("no face")
                 # No face detected
-                data["Face Candidate Detected"] = False
+                data["Face Candidate Detected"] = "false"
                 dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
                 app.logger.info(dict_data)
                 return dict_data
             else:
-                image, shape = coreApplication.rotate(candidate, shape)
-                roi = coreApplication.cropping(image, shape, data)
-                data["Cropping"] = True
+                #logger.info("face detected")
+                #image, shape = coreApplication.rotate(candidate, shape)
+                #roi, crop_pos  = coreApplication.cropping(image, shape)
+                roi, crop_pos  = coreApplication.cropping(candidate, shape)
+                data["Cropping"] = "true"
                 if roi is None:
+                    #logger.info("no cropping")
                     # Face is not centered and/or too close to the camera
-                    data["Cropping"] = False
+                    data["Cropping"] = "false"
                     dict_data = {"id": identifier_decoded, "feedback": json.dumps(data)}
                     app.logger.info(dict_data)
                     return dict_data
                 else:
+                    #logger.info("cropping")
+                    data["Crop Position"] = crop_pos
                     data["Resize"] = 500 / roi.shape[0]
                     final_img = cv2.resize(roi, (500, 500))
                     # start plugins
+                    _, img_encoded = cv2.imencode(".jpg", final_img)
+                    app.logger.info(f"Img Encoded {img_encoded[:30]}")
 
-                    # old method
-                    # img2 = request.form["reference"]
-                    # app.logger.info(f"image reference {img2}")
-
-                    # new method with kafka
-                    img2 = old_photo
-
+                    response = requests.get(f'http://api:8393/image/{identifier_decoded}')
+                    response_json = response.json()
+                    old_photo = response_json["photo"]
+                    app.logger.info(f"Received photo {old_photo[:30]}")
                     reference = cv2.imdecode(
-                        np.frombuffer(base64.b64decode(img2), np.uint8),
+                        np.frombuffer(base64.b64decode(old_photo), np.uint8),
                         cv2.IMREAD_COLOR,
                     )
-                    resp = __init_app(
+
+                    app.logger.info(f"Received photo decoded by cv2 {reference[:30]}")
+                    resp = plEngine.start(
                         candidate=candidate,
                         reference=reference,
                         raw_shape=raw_shape,
                         image=image,
                         shape=shape,
-                        final_img=final_img,
+                        final_img=final_img
                     )
 
                     app.logger.info(f"{resp}")
@@ -184,7 +141,12 @@ def upload_image():
                         data[k] = v
                     __print_plugins_end()
                     app.logger.info(data)
-                    return data
+
+                    cropped = base64.b64encode(img_encoded).decode("ascii")
+                    app.logger.info(f"Img Encoded {cropped[:10]}")
+                    #logger.info(data)
+                    dict_data = {'id':identifier_decoded, 'feedback':json.dumps(data),'cropped' : cropped }
+                    return dict_data
     return "", 204
 
 
@@ -196,7 +158,7 @@ def __print_plugins_end() -> None:
 
 
 def __init_app(**args):
-    return plEngine.start(**args)
+    return
 
 
 plEngine = PluginEngine(
@@ -210,10 +172,5 @@ plEngine = PluginEngine(
 
 if __name__ == "__main__":
     # Parse the command line.
-    parser = ArgumentParser()
-    parser.add_argument('config_file', type=FileType('r'))
-    parser.add_argument('--reset', action='store_true')
-    ARGS = parser.parse_args()
-    config_parser = ConfigParser()
 
     app.run(debug=True, host="0.0.0.0", port=5000)

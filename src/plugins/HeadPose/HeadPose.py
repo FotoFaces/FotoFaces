@@ -8,13 +8,13 @@ import math
 import numpy as np
 import cv2
 
-class Sunglasses(PluginCore):
+class HeadPose(PluginCore):
 
     def __init__(self, logger: Logger, appCore) -> None:
         super().__init__(logger, appCore)
         self.meta = Meta(
-            name='Sunglasses plugin',
-            description='Plugin for verifying if there are sunglasses',
+            name='Head pose plugin',
+            description='Plugin for evaluate the pose of the head',
             version='0.0.1'
         )
 
@@ -22,7 +22,7 @@ class Sunglasses(PluginCore):
 
     def invoke(self, args):
 
-        im = args["image"]
+        im = args["final_img"]
         features = args["shape"]
 
         size = im.shape
@@ -68,4 +68,4 @@ class Sunglasses(PluginCore):
         roll = -math.degrees(math.asin(math.sin(roll)))
         yaw = math.degrees(math.asin(math.sin(yaw)))
 
-        return ("Head Pose", (pitch, roll, yaw))
+        return ("Head Pose", [pitch, roll, yaw])
