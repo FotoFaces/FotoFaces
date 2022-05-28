@@ -1,10 +1,19 @@
+# Quality Images testing
 
-<h2> Quality image </h2>
-Mais ou menos     
-    score < 30 ou score < 25
-
-    quanto menor mais rigoroso é o algoritmo
+# testing old fotofaces
 
 
-Porém eu sugiro que usar a pasta Python ou o script image_quality.py
+
+
+## Resultado para Score < 25
+
+![results](https://github.com/FotoFaces/FotoFaces/src/plugins/ImageQuality/tests/images/test_fotofaces.png)
+
+## Resultado para Score < 30
+
+![results](https://github.com/FotoFaces/FotoFaces/src/plugins/ImageQuality/tests/images/test_fotofaces2.png)
+
+
+
+
 

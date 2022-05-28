@@ -20,6 +20,6 @@ class ImageQuality(PluginCore):
         roi = args["final_img"]
 
         img = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-        score = cv2.quality.QualityBRISQUE_compute(img, "brisque_model_live.yml", "brisque_range_live.yml")
+        score = cv2.quality.QualityBRISQUE_compute(img, "brisque_model_live.yml", "brisque_range_live.yml")[0]
 
         return ("Image Quality", score)

@@ -1,3 +1,6 @@
+# This algorithm is currently not working
+#
+#
 import cv2
 import numpy as np
 import sys
@@ -213,10 +216,6 @@ img_quality = calculate_image_quality_score(brisque_features)
 #   0 - very good
 
 print(img_quality) #not working
-
-
-
-
 
 
 
