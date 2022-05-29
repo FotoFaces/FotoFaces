@@ -64,8 +64,8 @@ class HeadPose(PluginCore):
         eulerAngles = cv2.decomposeProjectionMatrix(proj_matrix)[6]
 
         pitch, yaw, roll = [math.radians(x) for x in eulerAngles]
-        pitch = math.degrees(math.asin(math.sin(pitch)))
-        roll = -math.degrees(math.asin(math.sin(roll)))
-        yaw = math.degrees(math.asin(math.sin(yaw)))
+        pitch = abs(math.degrees(math.asin(math.sin(pitch))))
+        roll = abs(math.degrees(math.asin(math.sin(roll))))
+        yaw = abs(math.degrees(math.asin(math.sin(yaw))))
 
         return ("Head Pose", [pitch, roll, yaw])
