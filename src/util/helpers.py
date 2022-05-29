@@ -18,6 +18,7 @@ class FileSystem:
     @staticmethod
     def __get_config_directory() -> str:
         base_dir = FileSystem.__get_base_dir()
+        print(f"base_dir {base_dir}")
         return os.path.join(base_dir, 'settings')
 
     @staticmethod

@@ -76,6 +76,7 @@ class PluginUtility:
         try:
             plugin_config_data = FileSystem.load_configuration('plugin.yaml', module_path)
             plugin_config = from_dict(data_class=PluginConfig, data=plugin_config_data)
+            self._logger.debug(f'-----------------------------------------\n{plugin_config_data}\n-----------------------------')
             return plugin_config
         except FileNotFoundError as e:
             self._logger.error('Unable to read configuration file', e)
