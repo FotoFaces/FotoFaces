@@ -122,7 +122,7 @@ class Sunglasses(PluginCore):
 
         predictions = (loaded_model.predict(np.array(x_test)) > 0.5).astype("int32")
 
-        print("Prediction Sunglasses: ", predictions[0])
+        #print("Prediction Sunglasses: ", predictions[0])
 
         if predictions[0] == 1:
             return "true"
