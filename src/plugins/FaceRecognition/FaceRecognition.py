@@ -16,7 +16,7 @@ class FaceRecognition(PluginCore):
             description='Plugin that returns a distance between two faces within a roi, the bigger the distance the lower the people look a like.Meaning they are not the same person.',
             version='0.0.1'
         )
-        self.facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
+        self.facerec = dlib.face_recognition_model_v1("../../../dlib_face_recognition_resnet_model_v1.dat")
         self.appCore = appCore
 
 
