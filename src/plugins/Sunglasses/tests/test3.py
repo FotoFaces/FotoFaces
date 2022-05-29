@@ -29,8 +29,8 @@ def cropping_eye(image, shape):
         return None
 
 def detect_sunglassesNew(image, shape):
-	
-	roi_eye = cropping_eye(image, shape) 
+
+	roi_eye = cropping_eye(image, shape)
 	img_size = 150
 	resized_arr = cv2.resize(roi_eye, (img_size, img_size)) # Reshaping images to preferred size
 	resized_arr = cv2.cvtColor(resized_arr, cv2.COLOR_RGB2BGR)
@@ -187,4 +187,3 @@ def test_person_yellow_Sunglasses_no_visible_eyes_with_reflexition():
     assert func("images/sunglasses_6.jpg",True)
 def test_person_Sunglasses_visible_eyes():
     assert func("images/sunglasses_7.jpg",True)
-

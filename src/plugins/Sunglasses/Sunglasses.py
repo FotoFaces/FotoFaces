@@ -73,12 +73,12 @@ class Sunglasses(PluginCore):
         V_diff = abs(skin_reference[2] - V_average)
 
         if S_diff < 90 and V_diff < 90:
-            return ("Sunglasses", detect_sunglassesNew(image, shape))
+            return ("Sunglasses", self.detect_sunglassesNew(image, shape))
         else :
             return ("Sunglasses", "true")
         #return ("Sunglasses", [S_diff, V_diff])
 
-    def cropping_eye(image, shape):
+    def cropping_eye(self, image, shape):
 
         x1 = int(shape[0][0])
         x2 = int(shape[16][0])
@@ -95,9 +95,9 @@ class Sunglasses(PluginCore):
         else:
             return None
 
-    def detect_sunglassesNew(image, shape):
-        
-        roi_eye = cropping_eye(image, shape) 
+    def detect_sunglassesNew(self,image, shape):
+
+        roi_eye = self.cropping_eye(image, shape)
         img_size = 150
         resized_arr = cv2.resize(roi_eye, (img_size, img_size)) # Reshaping images to preferred size
         resized_arr = cv2.cvtColor(resized_arr, cv2.COLOR_RGB2BGR)
@@ -108,12 +108,12 @@ class Sunglasses(PluginCore):
         x_test = (x_test / 127.5 ) - 1	#Normalize the image channel values
 
         # load json and create model
-        json_file = open('../model_tf_sunglasses_eyes_hand_final.json', 'r')
+        json_file = open('./plugins/Sunglasses/model_tf_sunglasses_eyes_hand_final.json', 'r')
         loaded_model_json = json_file.read()
         json_file.close()
         loaded_model = model_from_json(loaded_model_json)
         # load weights into new model
-        loaded_model.load_weights("../model_tf_sunglasses_eyes_hand_final.h5")
+        loaded_model.load_weights("./plugins/Sunglasses/model_tf_sunglasses_eyes_hand_final.h5")
 
         # evaluate loaded model on test data
         loaded_model.compile(optimizer=tf.keras.optimizers.Adam(1e-5),  # Very low learning rate

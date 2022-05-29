@@ -20,7 +20,8 @@ class Glasses(PluginCore):
     def invoke(self, args):
 
         shape = args["shape"]
-        image = args["final_img"]
+        image = args["image"]
+        self._logger.info(f"Image {image[:30]}")
 
         nose_bridge_x = []
         nose_bridge_y = []
@@ -32,8 +33,9 @@ class Glasses(PluginCore):
         x_max = max(nose_bridge_x)
         y_min = shape[20][1]
         y_max = shape[31][1]
-        img2 = image[y_min:y_max, x_min:x_max]
+        img2  = image[y_min:y_max, x_min:x_max]
 
+        self._logger.info(f"Image2 {img2}")
         img_blur = cv2.GaussianBlur(np.array(img2),(3,3), sigmaX=0, sigmaY=0)
         edges = cv2.Canny(image =img_blur, threshold1=100, threshold2=200)
         edges_center = edges.T[(int(len(edges.T)/2))]

@@ -58,7 +58,7 @@ def detect_face(image):
 
 # Detects sunglasses using  Machine Learning trained model
 def detect_hats(image, shape):
-	
+
 	roi_cropp = cropping_hats(image, shape)
 	#print("roi_cropp",roi_cropp)
 	img_size = 150
@@ -94,7 +94,7 @@ def detect_hats(image, shape):
 	return False
 
 
-# Crops the image into the head reagion to give as input to the hats trained model 
+# Crops the image into the head reagion to give as input to the hats trained model
 def cropping_hats(image, shape):
 
     CROP_ALPHA = 0.75
@@ -117,14 +117,14 @@ def cropping_hats(image, shape):
         roi = image[tl[1]:br[1],tl[0]:br[0]]
         return roi
 
-    else: 
+    else:
         return None
 
 
 def func(path_img, expect):
     image = cv2.imread(path_img)
     shape = detect_face(image)[0]
-    
+
     return detect_hats(image,shape) == expect
 
 def test_person_with_no_hat():
@@ -142,4 +142,3 @@ def test_person_with_baseball_hat():
     assert func("images/hat_person_5.jpg",True)
 def test_person_samll_straw_hat():
     assert func("images/hat_person_6.jpg",True)
-
