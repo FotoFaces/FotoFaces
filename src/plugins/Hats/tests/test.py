@@ -141,5 +141,5 @@ def test_person_with_large_chupalla_hat():
 def test_person_with_baseball_hat():
     assert func("images/hat_person_5.jpg",True)
 def test_person_samll_straw_hat():
-    assert func("images/hat_person_5.jpg",True)
+    assert func("images/hat_person_6.jpg",True)
 
