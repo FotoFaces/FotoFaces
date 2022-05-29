@@ -1,4 +1,4 @@
-import face_recognition as fc
+#import face_recognition as fc
 import cv2
 import sys
 import fotofaces
@@ -8,9 +8,9 @@ import numpy as np
 
 
 
-facerec = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
+facerec = dlib.face_recognition_model_v1("../../../dlib_face_recognition_resnet_model_v1.dat")
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor("../../../shape_predictor_68_face_landmarks.dat")
 
 def rect_to_bb(rect):
 	x = rect.left()
@@ -56,7 +56,7 @@ def main():
 
     start = time.time()
 
-    result = testFaceRecognitionLib()
+    #result = testFaceRecognitionLib()
     duration = time.time() - start
 
     print("Result:" + str(result))
@@ -170,30 +170,6 @@ def fotofaces2_0():
     return tolerance <= 0.6
 
 
-    
-
-""" def detect_face(img):
-    #ficheiro para deteção de uma cara
-    faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml") #cena para detetar caras (tbm n sei muito os detalhes)
-    
-    #conversão para cinzentos
-    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    
-    faces_in_img = faceCascade.detectMultiScale(   #algoritmo de detetação
-            gray_img,
-            scaleFactor=1.1,
-            minNeighbors=5,
-            minSize=(30, 30),
-            flags = cv2.CASCADE_SCALE_IMAGE
-        ) 
-
-    if len(faces_in_img) != 1:
-        print("Error: Number of faces found -> " + str(len(faces_in_img)))
-        #return None
-
-    [x, y, w, h] = faces_in_img[0] 
-    #conversão para dlib rectangle
-    return dlib.full_object_detection(rect = dlib.rectangle(left=x, top=y, right=w+x, bottom=h+y)) """
 
     
 def detect_face(img):

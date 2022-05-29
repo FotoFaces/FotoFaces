@@ -9,7 +9,7 @@ import json
 import sys
 import fotofaces
 import time
-import face_recognition as fc
+#import face_recognition as fc
 
 
 
@@ -37,9 +37,9 @@ def testFaceRecognitionLib():
 
     for face in face_locations:
         [x,y,w,h] = rect_to_bb(list(face)) # conversão (só aceita ¯\_(ツ)_/¯ )
-        cv2.rectangle(im, (x, y), (x+w, y+h), (0, 255, 0), 2) # desenhar retangulos
+        #cv2.rectangle(im, (x, y), (x+w, y+h), (0, 255, 0), 2) # desenhar retangulos
     
-    cv2.imshow("Faces found", im)
+    #cv2.imshow("Faces found", im)
     #cv2.waitKey(0)
     print("Duration: "+ str(duration))
     print("End of Testing with OpenCV")
@@ -55,8 +55,8 @@ def testOpenCVDetection():
     duration = time.time() - start
     
     height, width = image.shape[:2]
-    res = cv2.resize(image,(width//4, height//4), interpolation = cv2.INTER_AREA)
-    cv2.imshow("Faces found", res)
+    #res = cv2.resize(image,(width//4, height//4), interpolation = cv2.INTER_AREA)
+    #cv2.imshow("Faces found", res)
     #cv2.waitKey(0)
     
     print("Duration: "+ str(duration))
@@ -79,8 +79,8 @@ def OpenCVDetection(imagePath):
         flags = cv2.CASCADE_SCALE_IMAGE
     ) 
     print("Number of Faces: ", len(faces))
-    for (x, y, w, h) in faces: #desenhar caras
-        cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    #for (x, y, w, h) in faces: #desenhar caras
+    #    cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
     return image
 
 
@@ -94,7 +94,7 @@ def testOldDetection():
     duration = time.time() - start
 
     height, width = image.shape[:2]
-    res = cv2.resize(image,(width//4, height//4), interpolation = cv2.INTER_AREA)
+    #res = cv2.resize(image,(width//4, height//4), interpolation = cv2.INTER_AREA)
     #cv2.waitKey(0)
     
     print("Duration: "+ str(duration))
@@ -111,7 +111,7 @@ def OldDetection(imagePath):
     print("Number of faces: 1" ) if  raw_shape  else print("Number of faces: 0" )
 
     #desenhar retangulos 
-    cv2.rectangle(image, (max_bb[0], max_bb[1]), (max_bb[0]+max_bb[2], max_bb[1]+max_bb[3]), (0, 255, 0), 2)
+    #cv2.rectangle(image, (max_bb[0], max_bb[1]), (max_bb[0]+max_bb[2], max_bb[1]+max_bb[3]), (0, 255, 0), 2)
     return image
 
 
@@ -121,6 +121,6 @@ def OldDetection(imagePath):
 testOpenCVDetection()
 print("\n\n")
 testOldDetection()
-print("\n\n")
-testFaceRecognitionLib()
-cv2.waitKey(0)
+#print("\n\n")
+#testFaceRecognitionLib()
+#cv2.waitKey(0)
