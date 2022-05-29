@@ -5,7 +5,6 @@ from model import Meta
 
 import numpy as np
 import cv2
-import dlib
 
 class Glasses(PluginCore):
 
