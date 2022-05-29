@@ -66,20 +66,48 @@ def cropping(image, shape):
 		return None
 
 
-path = sys.argv[1]
-roi = cv2.imread(path)
+def avg_bright(roi, shape):
 
-hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-h, s, v = cv2.split(hsv)
-avg = np.mean(v)
+    image = cropping(roi, shape)
 
-print(avg)
+    #height, width = image.shape[:2]
+    #res = cv2.resize(image,(width//4, height//4), interpolation = cv2.INTER_AREA)
+    #cv2.imshow("face", res)
+    #cv2.waitKey(0)
 
-# vicente_no_blur.jpg       167.889
-# vicente.png               145.2664
-# vieira.jpg                158.640
-# neves.jpg                 167.005
-# vicente_no_blur.jpg       138.103
-# vicente_no_blur.jpg 167.889
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    h, s, v = cv2.split(hsv)
+    avg = np.mean(v)
+    print(avg)
+    return avg > 90
+
+
+
+
+def func(path_img, expect):
+    image = cv2.imread(path_img)
+    shape = detect_face(image)[0]
+    
+    return avg_bright(image,shape) == expect
+
+def test_bright_1():
+    assert func( "images/bright_vicente_1.jpg", True)
+def test_bright_2():
+    assert func( "images/bright_vicente_2.jpg", True)
+def test_bright_3():
+    assert func( "images/bright_vicente_3.jpg", True)
+def test_bright_4():
+    assert func( "images/bright_vicente_4.jpg", True)
+def test_bright_5():
+    assert func( "images/bright_vicente_5.jpg", True)
+def test_bright_6():
+    assert func( "images/bright_vicente_6.jpg", False)
+def test_FaceBright_BackgroundDark_1():
+    assert func( "images/bright_Pedro_1.jpg", True)
+def test_FaceBright_BackgroundDark_2():
+    assert func( "images/bright_Pedro_2.jpg", True)
+
+
+
 
  
