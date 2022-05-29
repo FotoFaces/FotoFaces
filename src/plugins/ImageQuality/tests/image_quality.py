@@ -1,3 +1,6 @@
+# This algorithm is currently not working
+#
+# Using this blog: https://towardsdatascience.com/automatic-image-quality-assessment-in-python-391a6be52c11
 import cv2
 import numpy as np
 import sys
@@ -179,75 +182,65 @@ def calculate_image_quality_score(brisque_features):
 
 
 
-path = sys.argv[1]
-# Step 2: Convert to the HSV color space
-
 
 
 """ image = cv2.imread(path)
 gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) """
 
-image = skimage.io.imread(path)
-gray_image = skimage.color.rgb2gray(image)
+
+def img_qua(path):
+
+    image = skimage.io.imread(path)
+    gray_image = skimage.color.rgb2gray(image)
 
 
-# Calculate Coefficients
+    # Calculate Coefficients
 
-mscn_coefficients = calculate_mscn_coefficients(gray_image, 7, 7/6)
-coefficients = calculate_pair_product_coefficients(mscn_coefficients)
+    mscn_coefficients = calculate_mscn_coefficients(gray_image, 7, 7/6)
+    coefficients = calculate_pair_product_coefficients(mscn_coefficients)
 
-#Fit Coefficients to Generalized Gaussian Distributions
+    #Fit Coefficients to Generalized Gaussian Distributions
 
-brisque_features = calculate_brisque_features(gray_image, kernel_size=7, sigma=7/6)
+    brisque_features = calculate_brisque_features(gray_image, kernel_size=7, sigma=7/6)
 
-#Resize Image and Calculate BRISQUE Features
+    #Resize Image and Calculate BRISQUE Features
 
-downscaled_image = cv2.resize(gray_image, None, fx=1/2, fy=1/2, interpolation = cv2.INTER_CUBIC)
-downscale_brisque_features = calculate_brisque_features(downscaled_image, kernel_size=7, sigma=7/6)
+    downscaled_image = cv2.resize(gray_image, None, fx=1/2, fy=1/2, interpolation = cv2.INTER_CUBIC)
+    downscale_brisque_features = calculate_brisque_features(downscaled_image, kernel_size=7, sigma=7/6)
 
-brisque_features = np.concatenate((brisque_features, downscale_brisque_features))
+    brisque_features = np.concatenate((brisque_features, downscale_brisque_features))
 
-img_quality = calculate_image_quality_score(brisque_features)
+    img_quality = calculate_image_quality_score(brisque_features)
 
-# 100 - very bad
-#   0 - very good
+    # 100 - very bad
+    #   0 - very good
 
-print(img_quality) #not working
-
-
-
+    print(img_quality) #not working
+    return img_quality < 30
 
 
+def func(path_img, expect):
+    
+    return img_qua(path_img) == expect
+
+#def test_bad_quality_1():
+#    assert func( "images/bad_quality.jpg", False) #ERROR
+def test_bad_quality_2():
+    assert func( "images/bad_quality2.jpg", False)
+def test_bad_quality_3():
+    assert func( "images/GoncaloOldFoto.jpg", False)
+#def test_bad_quality_4():
+#    assert func( "images/mini_bad.jpg", False)  #ERROR
+
+def test_good_quality_1():
+    assert func( "images/neves.jpg", True)
+def test_good_quality_2():
+    assert func( "images/Pedro.jpg", True)
+def test_good_quality_3():
+    assert func( "images/vicente_no_blur.jpg", True)
+#def test_good_quality_4():
+#    assert func( "images/vicente.png", True)  #ERROR
+def test_good_quality_5():
+    assert func( "images/vieira.jpeg", True)
 
 
-
-
-
-""" img = cv2.imread(path, 0)
-blurred = cv2.GaussianBlur(img, (7, 7), 1.166) # apply gaussian blur to the image
-blurred_sq = blurred * blurred
-sigma = cv2.GaussianBlur(img * img, (7, 7), 1.166)
-sigma = (sigma - blurred_sq) ** 0.5
-sigma = sigma + 1.0/255 # to make sure the denominator doesn't give DivideByZero Exception
-structdis = (img - blurred)/sigma # final MSCN(i, j) image
-
-
-# indices to calculate pair-wise products (H, V, D1, D2)
-shifts = [[0,1], [1,0], [1,1], [-1,1]]
-# calculate pairwise components in each orientation
-for itr_shift in range(1, len(shifts) + 1):
-    OrigArr = structdis
-    reqshift = shifts[itr_shift-1] # shifting index
-    M = np.float32([[1, 0, reqshift[1]], [0, 1, reqshift[0]]])
-    ShiftArr = cv2.warpAffine(OrigArr, M, (structdis.shape[1], structdis.shape[0]))
-
-
-# load the model from allmodel file
-model = svmutil.svm_load_model("allmodel")
-# create svm node array from features list
-x, idx = svmutil.gen_svm_nodearray(x[1:], isKernel=(model.param.kernel_type == PRECOMPUTED))
-nr_classifier = 1 # fixed for svm type as EPSILON_SVR (regression)
-prob_estimates = (c_double * nr_classifier)()
-# predict quality score of an image using libsvm module
-qualityscore = svmutil.libsvm.svm_predict_probability(model, x, dec_values)
-print(qualityscore) """
