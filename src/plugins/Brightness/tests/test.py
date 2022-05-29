@@ -69,28 +69,11 @@ def cropping(image, shape):
 path = sys.argv[1]
 roi = cv2.imread(path)
 
-<<<<<<< HEAD
 hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
 h, s, v = cv2.split(hsv)
 avg = np.mean(v)
 
 print(avg)
-=======
-shape = detect_face(roi)[0]
-
-image = cropping(roi, shape)
-
-height, width = image.shape[:2]
-res = cv2.resize(image,(width//4, height//4), interpolation = cv2.INTER_AREA)
-cv2.imshow("face", res)
-cv2.waitKey(0)
-
-hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-h, s, v = cv2.split(hsv)
-avg = np.mean(v)
-
-print(avg) 
->>>>>>> feca5f50f664adacd407fe02e1bc4f09d112555e
 
 # vicente_no_blur.jpg       167.889
 # vicente.png               145.2664
