@@ -97,7 +97,7 @@ def upload_image():
                 return dict_data
             else:
                 #logger.info("face detected")
-                image, shape = coreApplication.rotate(candidate, shape)
+                #image, shape = coreApplication.rotate(candidate, shape)
                 #roi, crop_pos  = coreApplication.cropping(image, shape)
                 roi, crop_pos  = coreApplication.cropping(candidate, shape)
                 data["Cropping"] = "true"
