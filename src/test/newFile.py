@@ -4,16 +4,15 @@ import json
 #import matplotlib.image as mpimg  
 #from PIL import Image
 import io     
-import sys         
 import cv2
 
 import requests
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 import pytest
 
-api = 'http://192.168.33.46:5000/'
-reference = sys.argv[1]
-candidate = sys.argv[2]
+api = 'http://192.168.1.69:5000/'
+#reference = sys.argv[1]
+#candidate = sys.argv[2]
 
 
 def call_fotofaces(reference, candidate):
@@ -29,7 +28,7 @@ def call_fotofaces(reference, candidate):
     mp_encoder = MultipartEncoder(
         fields={
             'candidate': can_b64 ,
-            'id':'1234',
+            'id': '98083',
             'reference':ref_b64,
         }
     )
@@ -62,6 +61,18 @@ def  test_bright_face():
     reference = "images/Pedro.jpg"
     candidate = "images/bright_Pedro_1.jpg"
     data = call_fotofaces(reference,candidate)
-    print(data.keys())
+    #print("id",data['id'])
+    #print("cropped", data['cropped'])
+    print('feedback',data['feedback'])
+    results = data['feedback']
+    assert results["Colored Picture"] == "true"
+    assert results["Face Candidate Detected"] == "true"
+    assert results["Cropping"] == "true"
+    assert results["Glasses"] == "false"
+    assert results["Sunglasses"] == "false"
+    assert results["Head Pose"][0] < 15 and results["Head Pose"][1] < 15 and results["Head Pose"][2] < 15 
+    assert results["Eyes Open"][0] > 0.21
+    assert results["Focus"][0] > 90
+    assert results["Face Recognition"][0] < 0.6
 
 test_bright_face()
