@@ -51,7 +51,7 @@ def call_fotofaces(reference, candidate):
         #img = mpimg.imread(data['cropped'])
         #imgplot = plt.imshow(img)
         #plt.show()  
-        print(data['feedback']) 
+        #print(data['feedback']) 
         return data               
     except requests.exceptions.RequestException:
         print(r.text)
@@ -63,16 +63,20 @@ def  test_bright_face():
     data = call_fotofaces(reference,candidate)
     #print("id",data['id'])
     #print("cropped", data['cropped'])
-    print('feedback',data['feedback'])
-    results = data['feedback']
+    #print('feedback',data['feedback'])
+    results = json.loads(data['feedback'])
+    #print(results)
+    #print(type(results))
+
     assert results["Colored Picture"] == "true"
     assert results["Face Candidate Detected"] == "true"
     assert results["Cropping"] == "true"
     assert results["Glasses"] == "false"
     assert results["Sunglasses"] == "false"
     assert results["Head Pose"][0] < 15 and results["Head Pose"][1] < 15 and results["Head Pose"][2] < 15 
-    assert results["Eyes Open"][0] > 0.21
-    assert results["Focus"][0] > 90
-    assert results["Face Recognition"][0] < 0.6
-
-test_bright_face()
+    assert results["Eyes Open"] > 0.21
+    assert results["focus"] > 85
+    assert results["Face Recognition"] < 0.6
+    assert results["Image Quality"] < 25
+    assert results["Hats"] != "true"
+    assert results["Brightness"] > 100
