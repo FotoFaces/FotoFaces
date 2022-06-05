@@ -131,7 +131,6 @@ def upload_image():
                         candidate=candidate,
                         reference=reference,
                         raw_shape=raw_shape,
-                        image=image,
                         shape=shape,
                         final_img=final_img
                     )
