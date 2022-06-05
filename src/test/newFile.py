@@ -40,19 +40,8 @@ def call_fotofaces(reference, candidate):
     )
     try:
         data = r.json()
-        image_data = data["cropped"]
-        image_data = base64.b64decode(image_data)
-        with open(reference, 'wb') as f:
-            f.write(image_data)
-        image = cv2.imread(reference)
-        #cv2.imshow("image", image)()
-        #cv2.waitKey(0)
-        #decode_cropped = base64.b64decode(data['cropped']).deco
-        #img = mpimg.imread(data['cropped'])
-        #imgplot = plt.imshow(img)
-        #plt.show()  
         #print(data['feedback']) 
-        return data               
+        return json.loads(data['feedback'])              
     except requests.exceptions.RequestException:
         print(r.text)
     return None
@@ -60,13 +49,7 @@ def call_fotofaces(reference, candidate):
 def  test_bright_face():
     reference = "images/Pedro.jpg"
     candidate = "images/bright_Pedro_1.jpg"
-    data = call_fotofaces(reference,candidate)
-    #print("id",data['id'])
-    #print("cropped", data['cropped'])
-    #print('feedback',data['feedback'])
-    results = json.loads(data['feedback'])
-    #print(results)
-    #print(type(results))
+    results = call_fotofaces(reference,candidate)
 
     assert results["Colored Picture"] == "true"
     assert results["Face Candidate Detected"] == "true"
@@ -78,5 +61,46 @@ def  test_bright_face():
     assert results["focus"] > 85
     assert results["Face Recognition"] < 0.6
     assert results["Image Quality"] < 25
-    assert results["Hats"] != "true"
+    assert results["Hats"] == "false"
     assert results["Brightness"] > 100
+
+
+
+
+
+def  test_crop_fail():
+    reference = "images/Pedro.jpg"
+    candidate = "images/bright_vicente_6.jpg"
+    results = call_fotofaces(reference,candidate)
+
+    assert results["Colored Picture"] == "true"
+    assert results["Face Candidate Detected"] == "true"
+    assert results["Cropping"] == "false"
+
+
+def  test_Glasses():
+    reference = "images/Pedro.jpg"
+    candidate = "images/Glasses_2.jpg"
+    results = call_fotofaces(reference,candidate)
+
+    assert results["Colored Picture"] == "true"
+    assert results["Face Candidate Detected"] == "true"
+    assert results["Cropping"] == "true"
+    assert results["Glasses"] == "true"
+    assert results["Sunglasses"] == "false"
+    assert results["Head Pose"][0] < 15 and results["Head Pose"][1] < 15 and results["Head Pose"][2] < 15 
+    assert results["Eyes Open"] > 0.21
+    assert results["focus"] < 85
+    assert results["Face Recognition"] > 0.6
+    assert results["Image Quality"] < 25
+    assert results["Hats"] == "false"
+    assert results["Brightness"] > 100
+
+
+
+
+
+# tested 
+# Glasses
+# focus
+# Face recognition
