@@ -30,6 +30,10 @@ class FaceRecognition(PluginCore):
 
         #ficheiro para comparação de caras
         reference = args["reference"]
+
+        if reference is None:
+            return
+
         candidate = args["candidate"]
 
         self._logger.info(args.keys())
