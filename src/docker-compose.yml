@@ -1,6 +1,7 @@
 version: "3.9"
 services:
   app:
+    image: fotofaces.azurecr.io/fotofaces-app
     build: .
     ports:
       - "5000:5000"
@@ -8,6 +9,7 @@ services:
       - api-database
 
   api-database:
+    image: fotofaces.azurecr.io/restapianddb-pi-project
     build: ../APIs/.
     container_name: api
     hostname: api
