@@ -64,6 +64,21 @@ def someOther():
 @cross_origin()
 def upload_image():
     #logger.info("update")
+    old_photo = None
+    if "reference" in request.form.keys():
+        old_photo = request.form["reference"]
+    elif "id" in request.form.keys():
+        identifier_decoded = request.form["id"]
+        response = requests.get(f'http://api:8393/image/{identifier_decoded}')
+        try:
+            response_json = response.json()
+            if "photo" in response_json:
+                old_photo = response_json["photo"]
+        except:
+            pass
+
+
+    app.logger.info(f"Old Photo -> {old_photo}")
     if "candidate" in request.form.keys() and "id" in request.form.keys():
         #logger.info("first if")
 
@@ -117,16 +132,18 @@ def upload_image():
                     _, img_encoded = cv2.imencode(".jpg", final_img)
                     app.logger.info(f"Img Encoded {img_encoded[:30]}")
 
-                    response = requests.get(f'http://api:8393/image/{identifier_decoded}')
-                    response_json = response.json()
-                    old_photo = response_json["photo"]
-                    app.logger.info(f"Received photo {old_photo[:30]}")
-                    reference = cv2.imdecode(
-                        np.frombuffer(base64.b64decode(old_photo), np.uint8),
-                        cv2.IMREAD_COLOR,
-                    )
+                    if old_photo:
+                        app.logger.info(f"Received photo {old_photo[:30]}")
+                        reference = cv2.imdecode(
+                            np.frombuffer(base64.b64decode(old_photo), np.uint8),
+                            cv2.IMREAD_COLOR,
+                        )
+                        app.logger.info(f"Received photo decoded by cv2 {reference[:30]}")
 
-                    app.logger.info(f"Received photo decoded by cv2 {reference[:30]}")
+                    else:
+                        app.logger.info("There is no reference photo")
+                        reference = None
+
                     resp = plEngine.start(
                         candidate=candidate,
                         reference=reference,
