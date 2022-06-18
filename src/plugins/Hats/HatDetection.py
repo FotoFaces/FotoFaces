@@ -25,7 +25,7 @@ class HatDetection(PluginCore):
 
     def invoke(self, args):
 
-        candidate = args["image"]
+        candidate = args["candidate"]
         shape = args["shape"]
 
         roi_cropp = self.cropping_hats(candidate, shape)

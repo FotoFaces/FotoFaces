@@ -22,7 +22,7 @@ class Sunglasses(PluginCore):
 
     def invoke(self, args):
 
-        image = args["image"]
+        image = args["candidate"]
         shape = args["shape"]
 
         hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
