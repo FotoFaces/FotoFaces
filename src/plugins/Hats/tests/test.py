@@ -129,6 +129,8 @@ def func(path_img, expect):
 
 def test_person_with_no_hat():
     assert func( "images/hat_person_no.jpg", False)
+def test_person_with_no_hat2():
+    assert func("images/GoncaloNoGlasses.jpg",False)
 
 def test_person_with_campaign_hat():
     assert func( "images/hat_person_1.jpg", True)
@@ -140,5 +142,7 @@ def test_person_with_large_chupalla_hat():
     assert func("images/hat_person_4.jpg",True)
 def test_person_with_baseball_hat():
     assert func("images/hat_person_5.jpg",True)
+def test_person_samll_straw_hat():
+    assert func("images/hat_person_6.jpg",True)
 def test_person_samll_straw_hat():
     assert func("images/hat_person_6.jpg",True)
