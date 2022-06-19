@@ -72,7 +72,7 @@ class Sunglasses(PluginCore):
         S_diff = abs(skin_reference[1] - S_average)
         V_diff = abs(skin_reference[2] - V_average)
 
-        if S_diff < 90 and V_diff < 90:
+        if S_diff < 110 and V_diff < 110:
             return ("Sunglasses", self.detect_sunglassesNew(image, shape))
         else :
             return ("Sunglasses", "true")
